@@ -61,6 +61,8 @@ php tests/storage.php
 
 Use the GitHub Actions workflow for the PHP/WordPress/WooCommerce matrix, HPOS modes, and HTTP flows. Integration fixtures require disposable installations and databases. Report any checks that could not run.
 
+CI installs `tests/ci-store.php` as a must-use plugin in its disposable store and sets the `C2C_TEST_HPOS` configuration constant. This fixture selects the order datastore for CLI and HTTP requests and disables synchronization. Keep it out of production installations and runtime ZIPs. `scripts/assert_test_environment.php` checks measured PHP, HPOS mode, and order datastore against the job's `C2C_TEST_PHP` and `C2C_TEST_HPOS` environment variables before integration tests and evidence recording.
+
 ## Packaging and documentation
 
 ```sh

@@ -23,6 +23,9 @@ jobs:
             hpos: 'no'
             wordpress: '7.0'
             woocommerce: '11.0.0'
+    env:
+      C2C_TEST_PHP: '${{ matrix.php }}'
+      C2C_TEST_HPOS: '${{ matrix.hpos }}'
     services:
       database:
         image: mariadb:11.4
@@ -66,7 +69,6 @@ jobs:
         run: php tests/storage.php
       - name: Install test store and test WooCommerce payment workflows
         env:
-          HPOS: '${{ matrix.hpos }}'
           WORDPRESS_VERSION: '${{ matrix.wordpress }}'
           WOOCOMMERCE_VERSION: '${{ matrix.woocommerce }}'
         run: |
@@ -74,7 +76,10 @@ jobs:
           cd "$RUNNER_TEMP/site"
           wp core download --version="$WORDPRESS_VERSION"
           wp config create --dbname=wordpress --dbuser=root --dbpass=test --dbhost=127.0.0.1
+          wp config set C2C_TEST_HPOS "$C2C_TEST_HPOS"
           wp core install --url=http://127.0.0.1:8080 --title=Tests --admin_user=admin --admin_password=test-password --admin_email=admin@example.test --skip-email
+          mkdir -p wp-content/mu-plugins
+          ln -s "$GITHUB_WORKSPACE/tests/ci-store.php" wp-content/mu-plugins/c2c-ci-store.php
           if [ "$WOOCOMMERCE_VERSION" = latest ]; then
             wp plugin install woocommerce --activate
           else
@@ -85,10 +90,9 @@ jobs:
           wp eval 'WC_Install::create_pages();'
           ln -s "$GITHUB_WORKSPACE" wp-content/plugins/c2c-receipts
           wp plugin activate c2c-receipts
-          wp option update woocommerce_custom_orders_table_enabled "$HPOS"
-          wp option update woocommerce_custom_orders_table_data_sync_enabled no
           wp option update woocommerce_currency IRR
           wp option update woocommerce_calc_taxes no
+          wp eval-file "$GITHUB_WORKSPACE/scripts/assert_test_environment.php"
           wp eval-file "$GITHUB_WORKSPACE/tests/integration.php"
       - name: Test receipt uploads, checkout and protected downloads over HTTP
         run: |
