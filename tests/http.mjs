@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { decodeHtmlAttribute, fetchResponse } from './helpers/http.mjs';
 
 const base = process.env.C2C_TEST_URL || 'http://127.0.0.1:8080';
 const cookies = new Map();
@@ -10,7 +11,7 @@ async function request(path, options = {}, jar = cookies) {
     const headers = new Headers(options.headers);
     headers.set('Origin', base);
     headers.set('Cookie', [...jar].map(([key, value]) => `${key}=${value}`).join('; '));
-    const response = await fetch(base + path, { ...options, headers, redirect: 'manual' });
+    const response = await fetchResponse(base + path, { ...options, headers });
     for (const cookie of response.headers.getSetCookie()) {
         const pair = cookie.split(';')[0];
         const split = pair.indexOf('=');
@@ -53,7 +54,7 @@ result = await json('/?wc-ajax=c2c_status', new URLSearchParams({ nonce: strange
 assert.equal(result.body.success, false, 'Other sessions cannot read token status');
 const crossOrigin = await request('/?wc-ajax=c2c_boot', { method: 'POST', headers: { Origin: base } });
 assert.equal(crossOrigin.status, 200);
-const denied = await fetch(base + '/?wc-ajax=c2c_boot', { method: 'POST', headers: { Origin: 'https://attacker.invalid' } });
+const denied = await fetchResponse(base + '/?wc-ajax=c2c_boot', { method: 'POST', headers: { Origin: 'https://attacker.invalid' } });
 assert.equal(denied.status, 400);
 const file = await request('/wp-admin/admin-post.php?action=c2c_file&receipt_id=1');
 assert.equal(file.status, 403, 'Order ID alone grants no receipt access');
@@ -94,7 +95,9 @@ if (!receiptLink && process.env.RUNNER_TEMP) {
 assert.equal(confirmation.status, 200, 'Checkout confirmation page must render successfully');
 assert.doesNotMatch(html, /name=["']woo-coming-soon-page["']/, 'CI storefront must be live for guest confirmation tests');
 assert.ok(receiptLink, 'Original checkout session can access its receipt panel');
-const receiptURL = new URL(receiptLink[1].replaceAll('&amp;', '&'));
+const receiptURL = new URL(decodeHtmlAttribute(receiptLink[1]));
+assert.equal(receiptURL.searchParams.get('action'), 'c2c_file', 'Decoded receipt link must target the file handler');
+assert.ok(receiptURL.searchParams.get('receipt_id'), 'Decoded receipt link must retain its receipt ID');
 const privateImage = await request(receiptURL.pathname + receiptURL.search);
 assert.equal(privateImage.status, 200);
 assert.match(privateImage.headers.get('content-type'), /^image\/jpeg/);
@@ -105,7 +108,7 @@ assert.ok(Number.isSafeInteger(order.order_id));
 const metadata = JSON.parse(execFileSync('wp', ['eval', '$o=wc_get_order(' + order.order_id + '); $r=\\C2CReceipts\\Receipts::get((int)$o->get_meta("_c2c_receipt_id")); echo wp_json_encode(["url"=>wp_upload_dir()["baseurl"]."/c2c-receipts/".$r->filename]);'], { cwd: process.env.C2C_SITE_DIR, encoding: 'utf8' }));
 const blobURL = new URL(metadata.url);
 assert.match(blobURL.pathname, /\/c2c-receipts\/[a-f0-9]{64}\.c2c$/);
-const direct = await fetch(blobURL);
+const direct = await fetchResponse(blobURL);
 assert.equal(direct.status, 200);
 const ciphertext = Buffer.from(await direct.arrayBuffer());
 assert.equal(ciphertext.subarray(0, 5).toString('hex'), '4332435201');
