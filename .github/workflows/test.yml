@@ -1,10 +1,12 @@
-name: Plugin validation
+name: Bank receipts - tests and release checks
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
   test:
+    name: "PHP ${{ matrix.php }} | ${{ matrix.hpos == 'yes' && 'HPOS enabled' || 'HPOS disabled' }} | WordPress ${{ matrix.wordpress }} | WooCommerce ${{ matrix.woocommerce }}"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -21,6 +23,9 @@ jobs:
             hpos: 'no'
             wordpress: '7.0'
             woocommerce: '11.0.0'
+    env:
+      C2C_TEST_PHP: '${{ matrix.php }}'
+      C2C_TEST_HPOS: '${{ matrix.hpos }}'
     services:
       database:
         image: mariadb:11.4
@@ -30,34 +35,40 @@ jobs:
         ports: ['3306:3306']
         options: --health-cmd="mariadb-admin ping -h127.0.0.1 -ptest" --health-interval=5s --health-timeout=5s --health-retries=20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out plugin source
+        uses: actions/checkout@v4
+      - name: Set up Node.js 22 for JavaScript tests
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - uses: shivammathur/setup-php@v2
+      - name: Set up Python 3.12 for translation and release checks
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Set up PHP, image extensions, WP-CLI and Composer
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '${{ matrix.php }}'
           extensions: gd, mysqli, openssl
           tools: wp-cli, composer
           coverage: none
-      - name: JavaScript and translation checks
+      - name: Test checkout scripts, translations and release metadata
         run: |
           npm test
           npm run check
           python3 scripts/compile_translations.py
           npm run audit
           python3 -m unittest discover -s tests -p 'test_*.py'
-      - name: Install development standards
+      - name: Install PHP code quality tools
         run: composer install --no-interaction --prefer-dist
-      - name: WordPress security and compatibility standards
+      - name: Check PHP security, database, translation and compatibility rules
         run: composer standards
-      - name: PHP syntax
+      - name: Check PHP file syntax
         run: composer lint
-      - name: Private storage boundary tests
+      - name: Test receipt encryption and private file storage
         run: php tests/storage.php
-      - name: Install disposable WordPress and WooCommerce
+      - name: Install test store and test WooCommerce payment workflows
         env:
-          HPOS: '${{ matrix.hpos }}'
           WORDPRESS_VERSION: '${{ matrix.wordpress }}'
           WOOCOMMERCE_VERSION: '${{ matrix.woocommerce }}'
         run: |
@@ -65,24 +76,33 @@ jobs:
           cd "$RUNNER_TEMP/site"
           wp core download --version="$WORDPRESS_VERSION"
           wp config create --dbname=wordpress --dbuser=root --dbpass=test --dbhost=127.0.0.1
+          wp config set C2C_TEST_HPOS "$C2C_TEST_HPOS"
           wp core install --url=http://127.0.0.1:8080 --title=Tests --admin_user=admin --admin_password=test-password --admin_email=admin@example.test --skip-email
-          wp plugin install woocommerce --version="$WOOCOMMERCE_VERSION" --activate
+          mkdir -p wp-content/mu-plugins
+          ln -s "$GITHUB_WORKSPACE/tests/ci-store.php" wp-content/mu-plugins/c2c-ci-store.php
+          if [ "$WOOCOMMERCE_VERSION" = latest ]; then
+            wp plugin install woocommerce --activate
+          else
+            wp plugin install woocommerce --version="$WOOCOMMERCE_VERSION" --activate
+          fi
+          # Fresh WooCommerce stores hide checkout pages behind Coming soon mode.
+          wp option update woocommerce_coming_soon no
           wp eval 'WC_Install::create_pages();'
           ln -s "$GITHUB_WORKSPACE" wp-content/plugins/c2c-receipts
           wp plugin activate c2c-receipts
-          wp option update woocommerce_custom_orders_table_enabled "$HPOS"
-          wp option update woocommerce_custom_orders_table_data_sync_enabled no
           wp option update woocommerce_currency IRR
           wp option update woocommerce_calc_taxes no
+          wp eval-file "$GITHUB_WORKSPACE/scripts/assert_test_environment.php"
           wp eval-file "$GITHUB_WORKSPACE/tests/integration.php"
-      - name: Real HTTP uploads
+      - name: Test receipt uploads, checkout and protected downloads over HTTP
         run: |
           cd "$RUNNER_TEMP/site"
           wp eval '$p = new WC_Product_Simple(); $p->set_name("HTTP test"); $p->set_regular_price("100"); $p->set_virtual(true); $p->save(); file_put_contents(getenv("RUNNER_TEMP")."/product", $p->get_id()); file_put_contents(getenv("RUNNER_TEMP")."/accounts", wp_json_encode(array_values(\C2CReceipts\Support::accounts()))); $i = imagecreatetruecolor(2,2); imagepng($i,getenv("RUNNER_TEMP")."/receipt.png");'
           php -S 127.0.0.1:8080 > "$RUNNER_TEMP/php-server.log" 2>&1 &
           for attempt in {1..20}; do if curl -fsS http://127.0.0.1:8080/ > /dev/null; then break; fi; sleep 1; done
+          curl -fsS --max-time 10 http://127.0.0.1:8080/ > /dev/null
           C2C_SITE_DIR="$RUNNER_TEMP/site" C2C_PRODUCT_FILE="$RUNNER_TEMP/product" C2C_ACCOUNTS_FILE="$RUNNER_TEMP/accounts" C2C_IMAGE_FILE="$RUNNER_TEMP/receipt.png" node "$GITHUB_WORKSPACE/tests/http.mjs"
-      - name: Record successful runtime validation
+      - name: Record tested versions and successful test results
         env:
           C2C_TEST_PROFILE: '${{ matrix.wordpress == ''latest'' && ''latest'' || ''minimum'' }}'
         run: |
@@ -90,36 +110,56 @@ jobs:
           export C2C_SOURCE_SHA256
           cd "$RUNNER_TEMP/site"
           wp eval-file "$GITHUB_WORKSPACE/scripts/record_validation.php"
-      - uses: actions/upload-artifact@v4
+      - name: Save validation results for release checks
+        uses: actions/upload-artifact@v4
         with:
           name: validation-${{ matrix.php }}-${{ matrix.hpos }}-${{ matrix.wordpress }}
           path: '${{ runner.temp }}/validation.json'
           if-no-files-found: error
-      - name: Server logs
+      - name: Show PHP server logs on failure
         if: failure()
         run: cat "$RUNNER_TEMP/php-server.log" 2>/dev/null || true
+      - name: Save HTTP logs and confirmation page on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: http-diagnostics-${{ matrix.php }}-${{ matrix.hpos }}-${{ matrix.wordpress }}
+          path: |
+            ${{ runner.temp }}/php-server.log
+            ${{ runner.temp }}/confirmation.html
+            ${{ runner.temp }}/confirmation.json
+          if-no-files-found: ignore
+          retention-days: 3
   directory-review:
+    name: WordPress.org package and plugin checks
     needs: test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - name: Check out plugin source
+        uses: actions/checkout@v4
+      - name: Set up Python 3.12 for packaging
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download validation results from all test configurations
+        uses: actions/download-artifact@v4
         with:
           pattern: validation-*
           path: '${{ runner.temp }}/validation'
-      - name: Build ZIP with measured compatibility metadata
+      - name: Build plugin ZIP using verified compatibility results
         run: |
           python3 scripts/compile_translations.py
           python3 scripts/package.py --wordpress-org --validation-dir "$RUNNER_TEMP/validation"
           mkdir -p "$RUNNER_TEMP/directory-review"
           unzip -q dist/c2c-receipts-*.zip -d "$RUNNER_TEMP/directory-review"
-      - name: Official WordPress Plugin Check
+      - name: Run strict WordPress.org Plugin Check
         uses: WordPress/plugin-check-action@v1
         with:
           build-dir: '${{ runner.temp }}/directory-review/c2c-receipts'
           slug: c2c-receipts
           strict: true
-      - name: Upload submission ZIP after all checks pass
+      - name: Save validated plugin ZIP for download
         uses: actions/upload-artifact@v4
         with:
           name: wordpress-org-submission

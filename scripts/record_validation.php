@@ -3,6 +3,7 @@
 if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 	exit( 1 );
 }
+require __DIR__ . '/assert_test_environment.php';
 $record = array(
 	'plugin_version' => C2C_RECEIPTS_VERSION,
 	'source_sha256' => getenv( 'C2C_SOURCE_SHA256' ),
@@ -10,6 +11,8 @@ $record = array(
 	'wordpress_version' => get_bloginfo( 'version' ),
 	'woocommerce_version' => WC_VERSION,
 	'hpos' => get_option( 'woocommerce_custom_orders_table_enabled' ),
+	'requested_php' => getenv( 'C2C_TEST_PHP' ),
+	'requested_hpos' => getenv( 'C2C_TEST_HPOS' ),
 	'profile' => getenv( 'C2C_TEST_PROFILE' ),
 	'checks' => array( 'javascript' => true, 'php_lint' => true, 'storage_crypto' => true, 'woocommerce' => true, 'http' => true ),
 );
