@@ -9,6 +9,7 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 	exit( 1 );
 }
 
+global $checks;
 $checks = 0;
 function c2c_check( bool $condition, string $message ): void {
 	global $checks;

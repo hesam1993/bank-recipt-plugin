@@ -66,7 +66,13 @@ jobs:
           wp core download --version="$WORDPRESS_VERSION"
           wp config create --dbname=wordpress --dbuser=root --dbpass=test --dbhost=127.0.0.1
           wp core install --url=http://127.0.0.1:8080 --title=Tests --admin_user=admin --admin_password=test-password --admin_email=admin@example.test --skip-email
-          wp plugin install woocommerce --version="$WOOCOMMERCE_VERSION" --activate
+          if [ "$WOOCOMMERCE_VERSION" = latest ]; then
+            wp plugin install woocommerce --activate
+          else
+            wp plugin install woocommerce --version="$WOOCOMMERCE_VERSION" --activate
+          fi
+          # Fresh WooCommerce stores hide checkout pages behind Coming soon mode.
+          wp option update woocommerce_coming_soon no
           wp eval 'WC_Install::create_pages();'
           ln -s "$GITHUB_WORKSPACE" wp-content/plugins/c2c-receipts
           wp plugin activate c2c-receipts
@@ -81,6 +87,7 @@ jobs:
           wp eval '$p = new WC_Product_Simple(); $p->set_name("HTTP test"); $p->set_regular_price("100"); $p->set_virtual(true); $p->save(); file_put_contents(getenv("RUNNER_TEMP")."/product", $p->get_id()); file_put_contents(getenv("RUNNER_TEMP")."/accounts", wp_json_encode(array_values(\C2CReceipts\Support::accounts()))); $i = imagecreatetruecolor(2,2); imagepng($i,getenv("RUNNER_TEMP")."/receipt.png");'
           php -S 127.0.0.1:8080 > "$RUNNER_TEMP/php-server.log" 2>&1 &
           for attempt in {1..20}; do if curl -fsS http://127.0.0.1:8080/ > /dev/null; then break; fi; sleep 1; done
+          curl -fsS --max-time 10 http://127.0.0.1:8080/ > /dev/null
           C2C_SITE_DIR="$RUNNER_TEMP/site" C2C_PRODUCT_FILE="$RUNNER_TEMP/product" C2C_ACCOUNTS_FILE="$RUNNER_TEMP/accounts" C2C_IMAGE_FILE="$RUNNER_TEMP/receipt.png" node "$GITHUB_WORKSPACE/tests/http.mjs"
       - name: Record successful runtime validation
         env:
@@ -98,6 +105,17 @@ jobs:
       - name: Server logs
         if: failure()
         run: cat "$RUNNER_TEMP/php-server.log" 2>/dev/null || true
+      - name: Upload HTTP failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: http-diagnostics-${{ matrix.php }}-${{ matrix.hpos }}-${{ matrix.wordpress }}
+          path: |
+            ${{ runner.temp }}/php-server.log
+            ${{ runner.temp }}/confirmation.html
+            ${{ runner.temp }}/confirmation.json
+          if-no-files-found: ignore
+          retention-days: 3
   directory-review:
     needs: test
     runs-on: ubuntu-latest

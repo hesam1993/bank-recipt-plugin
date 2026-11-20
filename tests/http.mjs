@@ -1,6 +1,7 @@
 /** Real multipart upload/authentication checks against the disposable CI store. */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 const base = process.env.C2C_TEST_URL || 'http://127.0.0.1:8080';
@@ -81,6 +82,17 @@ const redirect = new URL(order.payment_result.redirect_url);
 const confirmation = await request(redirect.pathname + redirect.search);
 const html = await confirmation.text();
 const receiptLink = html.match(/href="([^"]*action=c2c_file[^"]*)"/);
+if (!receiptLink && process.env.RUNNER_TEMP) {
+    fs.writeFileSync(path.join(process.env.RUNNER_TEMP, 'confirmation.html'), html);
+    fs.writeFileSync(path.join(process.env.RUNNER_TEMP, 'confirmation.json'), JSON.stringify({
+        status: confirmation.status,
+        contentType: confirmation.headers.get('content-type'),
+        orderId: order.order_id,
+        sessionCookiePresent: [...cookies.keys()].some(name => name.startsWith('wp_woocommerce_session_'))
+    }, null, 2));
+}
+assert.equal(confirmation.status, 200, 'Checkout confirmation page must render successfully');
+assert.doesNotMatch(html, /name=["']woo-coming-soon-page["']/, 'CI storefront must be live for guest confirmation tests');
 assert.ok(receiptLink, 'Original checkout session can access its receipt panel');
 const receiptURL = new URL(receiptLink[1].replaceAll('&amp;', '&'));
 const privateImage = await request(receiptURL.pathname + receiptURL.search);
