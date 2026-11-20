@@ -1,0 +1,14 @@
+{
+  "name": "c2c-receipts",
+  "version": "0.1.4",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "check": "node --check assets/common.js && node --check assets/classic.js && node --check assets/blocks.js && node --check assets/admin.js && node --check assets/accounts.js",
+    "package": "python3 scripts/package.py",
+    "audit": "python3 scripts/audit_release.py"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

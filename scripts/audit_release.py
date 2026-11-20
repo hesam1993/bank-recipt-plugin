@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+"""Offline directory metadata checks; this is not the official WordPress Plugin Check."""
+from pathlib import Path
+import argparse
+import hashlib
+import json
+import re
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+SLUG = 'c2c-receipts'
+
+
+def runtime_files(root=ROOT):
+    paths = [root / name for name in ('c2c-receipts.php', 'uninstall.php', 'readme.txt', 'LICENSE', 'license.txt', 'source.txt')]
+    for folder in ('includes', 'assets', 'languages'):
+        paths.extend(path for path in (root / folder).rglob('*') if path.is_file() and path.suffix in {'.php', '.js', '.css', '.mo', '.po'})
+    return sorted(paths)
+
+
+def fingerprint(root=ROOT):
+    digest = hashlib.sha256()
+    for path in runtime_files(root):
+        digest.update(str(path.relative_to(root)).encode() + b'\0' + path.read_bytes() + b'\0')
+    return digest.hexdigest()
+
+
+def metadata(root=ROOT):
+    source = (root / 'c2c-receipts.php').read_text()
+    header = dict(re.findall(r'^ \* ([\w ]+): (.+)$', source, re.MULTILINE))
+    readme = (root / 'readme.txt').read_text()
+    top, description = readme.split('\n\n', 1)
+    fields = dict(re.findall(r'^([\w ]+): (.+)$', top, re.MULTILINE))
+    return source, header, readme, fields, description.splitlines()[0]
+
+
+def audit(root=ROOT):
+    errors = []
+    source, header, readme, fields, description = metadata(root)
+    for key in ('Plugin Name', 'Version', 'Author', 'Author URI', 'Requires at least', 'Requires PHP', 'Requires Plugins', 'License', 'License URI', 'Text Domain'):
+        if not header.get(key):
+            errors.append('Missing plugin header: ' + key)
+    for key in ('Contributors', 'Tags', 'Stable tag', 'Requires at least', 'Tested up to', 'Requires PHP', 'License', 'License URI'):
+        if not fields.get(key):
+            errors.append('Missing readme header: ' + key)
+    if not re.fullmatch(r'\d+\.\d+(?:\.\d+)?', fields.get('Tested up to', '')):
+        errors.append('Readme Tested up to must contain a numeric WordPress version.')
+    version = header.get('Version', '')
+    if not re.fullmatch(r'\d+\.\d+\.\d+', version):
+        errors.append('Use a numeric three-part plugin version.')
+    if version != fields.get('Stable tag') or version != json.loads((root / 'package.json').read_text())['version']:
+        errors.append('Plugin, package and stable tag versions must match.')
+    if f"define( 'C2C_RECEIPTS_VERSION', '{version}' );" not in source:
+        errors.append('Runtime version constant differs from the plugin header.')
+    if header.get('Text Domain') != SLUG:
+        errors.append('Text domain must match the intended directory slug.')
+    if header.get('Author') != 'Hesam MM' or 'hesamst' not in fields.get('Contributors', '').split(','):
+        errors.append('Keep author Hesam MM and contributor hesamst.')
+    if not re.fullmatch(r'[A-Za-z0-9_.-]+(?:,\s*[A-Za-z0-9_.-]+)*', fields.get('Contributors', '')):
+        errors.append('Contributors must contain WordPress.org usernames, not display names.')
+    if not 0 < len(description) <= 150:
+        errors.append('Readme short description must be 1–150 characters.')
+    if not 1 <= len(fields.get('Tags', '').split(',')) <= 5:
+        errors.append('Readme must have at most five tags.')
+    if header.get('Requires PHP') != fields.get('Requires PHP') or header.get('Requires at least') != fields.get('Requires at least'):
+        errors.append('Readme and plugin minimum requirements differ.')
+    license_text = (root / 'license.txt').read_text()
+    if len(license_text) < 17000 or 'Version 2, June 1991' not in license_text or 'END OF TERMS AND CONDITIONS' not in license_text:
+        errors.append('Include the full GPLv2 license, not only a short notice.')
+    for section in ('Description', 'Installation', 'Privacy', 'Source code', 'Changelog'):
+        if f'== {section} ==' not in readme:
+            errors.append('Missing readme section: ' + section)
+    if not readme.startswith('=== ' + header.get('Plugin Name', '') + ' ==='):
+        errors.append('Readme and plugin display names differ.')
+    for path in runtime_files(root):
+        if not path.is_file():
+            errors.append('Missing runtime/source file: ' + str(path))
+        elif path.suffix == '.php' and "defined( 'ABSPATH' )" not in path.read_text() and path.name != 'uninstall.php':
+            errors.append('Missing direct-access guard: ' + str(path))
+    return errors
+
+
+def validated_versions(directory, root=ROOT):
+    records = [json.loads(path.read_text()) for path in Path(directory).rglob('validation.json')]
+    expected = {(branch, hpos, 'latest') for branch in ('8.3', '8.4', '8.5', '8.6') for hpos in ('yes', 'no')}
+    expected |= {('8.3', hpos, 'minimum') for hpos in ('yes', 'no')}
+    seen = set()
+    versions = set()
+    woo = set()
+    _, header, _, _, _ = metadata(root)
+    digest = fingerprint(root)
+    for record in records:
+        if record.get('source_sha256') != digest or record.get('plugin_version') != header['Version']:
+            raise ValueError('Validation evidence does not match this source/version.')
+        if not all(record.get('checks', {}).get(name) is True for name in ('javascript', 'php_lint', 'storage_crypto', 'woocommerce', 'http')):
+            raise ValueError('Runtime checks are incomplete or failed.')
+        key = ('.'.join(record['php_version'].split('.')[:2]), record['hpos'], record['profile'])
+        if key not in expected or key in seen:
+            raise ValueError('Unexpected or duplicate validation matrix record: ' + repr(key))
+        seen.add(key)
+        if record['profile'] == 'latest':
+            versions.add('.'.join(record['wordpress_version'].split('.')[:2]))
+            woo.add(record['woocommerce_version'])
+        elif not record['wordpress_version'].startswith('7.0') or not record['woocommerce_version'].startswith('11.0.'):
+            raise ValueError('Minimum-support validation ran against the wrong versions.')
+    if seen != expected or len(versions) != 1:
+        raise ValueError('All ten matching matrix records are required; latest WordPress must agree.')
+    tested = versions.pop()
+    if not re.fullmatch(r'\d+\.\d+', tested):
+        raise ValueError('A stable numeric WordPress version is required.')
+    return tested, max(woo, key=lambda value: tuple(int(piece) for piece in value.split('.')))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--fingerprint', action='store_true')
+    args = parser.parse_args()
+    if args.fingerprint:
+        print(fingerprint())
+        sys.exit(0)
+    problems = audit()
+    if problems:
+        print('\n'.join(problems), file=sys.stderr)
+        sys.exit(1)
+    print('Local directory metadata/source checks passed. Official Plugin Check and runtime release gates are separate.')

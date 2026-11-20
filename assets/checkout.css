@@ -1,0 +1,14 @@
+.c2c-form { display: grid; gap: 1rem; margin-block: 1rem; }
+.c2c-form label { display: grid; gap: .4rem; font-weight: 600; }
+.c2c-form input, .c2c-form select { box-sizing: border-box; max-width: 100%; width: 100%; font: inherit; }
+.c2c-form input[type="file"] { padding-block: .5rem; }
+.c2c-details { padding: 1rem; border: 1px solid currentColor; border-radius: .4rem; }
+.c2c-details p { margin-block: 0 .4rem; overflow-wrap: anywhere; }
+.c2c-copy { font: inherit; cursor: pointer; }
+.c2c-preview { max-width: 100%; max-height: 15rem; object-fit: contain; justify-self: start; }
+.c2c-help, .c2c-status { margin: 0; font-size: .9em; overflow-wrap: anywhere; }
+.c2c-status:empty { display: none; }
+.c2c-progress { width: 100%; }
+.c2c-manage { max-width: 48rem; margin: 2rem auto; padding: 1rem; }
+.c2c-form [hidden] { display: none; }
+.c2c-form :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }

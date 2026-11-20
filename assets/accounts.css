@@ -1,0 +1,8 @@
+.c2c-accounts { max-width: 920px; }
+.c2c-account-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-block-end: 16px; padding: 16px; border: 1px solid #c3c4c7; border-radius: 4px; background: #fff; }
+.c2c-account-row legend { padding-inline: 6px; font-weight: 600; }
+.c2c-account-row label { display: grid; gap: 6px; }
+.c2c-account-row input[type="text"] { box-sizing: border-box; width: 100% !important; min-width: 0; margin: 0 !important; }
+.c2c-account-remove { justify-self: start; grid-column: 1 / -1; }
+.c2c-accounts [hidden] { display: none; }
+@media (max-width: 782px) { .c2c-account-row { grid-template-columns: 1fr; } }

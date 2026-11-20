@@ -1,0 +1,127 @@
+name: Plugin validation
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.4', '8.5', '8.6']
+        hpos: ['yes', 'no']
+        wordpress: ['latest']
+        woocommerce: ['latest']
+        include:
+          - php: '8.3'
+            hpos: 'yes'
+            wordpress: '7.0'
+            woocommerce: '11.0.0'
+          - php: '8.3'
+            hpos: 'no'
+            wordpress: '7.0'
+            woocommerce: '11.0.0'
+    services:
+      database:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: test
+          MARIADB_DATABASE: wordpress
+        ports: ['3306:3306']
+        options: --health-cmd="mariadb-admin ping -h127.0.0.1 -ptest" --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '${{ matrix.php }}'
+          extensions: gd, mysqli, openssl
+          tools: wp-cli, composer
+          coverage: none
+      - name: JavaScript and translation checks
+        run: |
+          npm test
+          npm run check
+          python3 scripts/compile_translations.py
+          npm run audit
+          python3 -m unittest discover -s tests -p 'test_*.py'
+      - name: Install development standards
+        run: composer install --no-interaction --prefer-dist
+      - name: WordPress security and compatibility standards
+        run: composer standards
+      - name: PHP syntax
+        run: composer lint
+      - name: Private storage boundary tests
+        run: php tests/storage.php
+      - name: Install disposable WordPress and WooCommerce
+        env:
+          HPOS: '${{ matrix.hpos }}'
+          WORDPRESS_VERSION: '${{ matrix.wordpress }}'
+          WOOCOMMERCE_VERSION: '${{ matrix.woocommerce }}'
+        run: |
+          mkdir -p "$RUNNER_TEMP/site"
+          cd "$RUNNER_TEMP/site"
+          wp core download --version="$WORDPRESS_VERSION"
+          wp config create --dbname=wordpress --dbuser=root --dbpass=test --dbhost=127.0.0.1
+          wp core install --url=http://127.0.0.1:8080 --title=Tests --admin_user=admin --admin_password=test-password --admin_email=admin@example.test --skip-email
+          wp plugin install woocommerce --version="$WOOCOMMERCE_VERSION" --activate
+          wp eval 'WC_Install::create_pages();'
+          ln -s "$GITHUB_WORKSPACE" wp-content/plugins/c2c-receipts
+          wp plugin activate c2c-receipts
+          wp option update woocommerce_custom_orders_table_enabled "$HPOS"
+          wp option update woocommerce_custom_orders_table_data_sync_enabled no
+          wp option update woocommerce_currency IRR
+          wp option update woocommerce_calc_taxes no
+          wp eval-file "$GITHUB_WORKSPACE/tests/integration.php"
+      - name: Real HTTP uploads
+        run: |
+          cd "$RUNNER_TEMP/site"
+          wp eval '$p = new WC_Product_Simple(); $p->set_name("HTTP test"); $p->set_regular_price("100"); $p->set_virtual(true); $p->save(); file_put_contents(getenv("RUNNER_TEMP")."/product", $p->get_id()); file_put_contents(getenv("RUNNER_TEMP")."/accounts", wp_json_encode(array_values(\C2CReceipts\Support::accounts()))); $i = imagecreatetruecolor(2,2); imagepng($i,getenv("RUNNER_TEMP")."/receipt.png");'
+          php -S 127.0.0.1:8080 > "$RUNNER_TEMP/php-server.log" 2>&1 &
+          for attempt in {1..20}; do if curl -fsS http://127.0.0.1:8080/ > /dev/null; then break; fi; sleep 1; done
+          C2C_SITE_DIR="$RUNNER_TEMP/site" C2C_PRODUCT_FILE="$RUNNER_TEMP/product" C2C_ACCOUNTS_FILE="$RUNNER_TEMP/accounts" C2C_IMAGE_FILE="$RUNNER_TEMP/receipt.png" node "$GITHUB_WORKSPACE/tests/http.mjs"
+      - name: Record successful runtime validation
+        env:
+          C2C_TEST_PROFILE: '${{ matrix.wordpress == ''latest'' && ''latest'' || ''minimum'' }}'
+        run: |
+          C2C_SOURCE_SHA256=$(python3 scripts/audit_release.py --fingerprint)
+          export C2C_SOURCE_SHA256
+          cd "$RUNNER_TEMP/site"
+          wp eval-file "$GITHUB_WORKSPACE/scripts/record_validation.php"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: validation-${{ matrix.php }}-${{ matrix.hpos }}-${{ matrix.wordpress }}
+          path: '${{ runner.temp }}/validation.json'
+          if-no-files-found: error
+      - name: Server logs
+        if: failure()
+        run: cat "$RUNNER_TEMP/php-server.log" 2>/dev/null || true
+  directory-review:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: validation-*
+          path: '${{ runner.temp }}/validation'
+      - name: Build ZIP with measured compatibility metadata
+        run: |
+          python3 scripts/compile_translations.py
+          python3 scripts/package.py --wordpress-org --validation-dir "$RUNNER_TEMP/validation"
+          mkdir -p "$RUNNER_TEMP/directory-review"
+          unzip -q dist/c2c-receipts-*.zip -d "$RUNNER_TEMP/directory-review"
+      - name: Official WordPress Plugin Check
+        uses: WordPress/plugin-check-action@v1
+        with:
+          build-dir: '${{ runner.temp }}/directory-review/c2c-receipts'
+          slug: c2c-receipts
+          strict: true
+      - name: Upload submission ZIP after all checks pass
+        uses: actions/upload-artifact@v4
+        with:
+          name: wordpress-org-submission
+          path: dist/c2c-receipts-*.zip
+          if-no-files-found: error

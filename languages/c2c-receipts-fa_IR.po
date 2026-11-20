@@ -1,0 +1,412 @@
+# Persian translation for Card to Card Receipts.
+
+msgid ""
+msgstr "Project-Id-Version: c2c-receipts 0.1.4\nLanguage: fa_IR\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "A payment receipt is available in the private receipt review panel."
+msgstr "رسید پرداخت در بخش خصوصی بررسی رسید سفارش در دسترس است."
+
+msgid "A payment receipt was rejected."
+msgstr "یک رسید پرداخت رد شد."
+
+msgid "A receipt is already awaiting review."
+msgstr "یک رسید هم‌اکنون در انتظار بررسی است."
+
+msgid "A rejection reason is required."
+msgstr "وارد کردن دلیل رد رسید الزامی است."
+
+msgid "A replacement payment receipt was submitted."
+msgstr "رسید جایگزین پرداخت ارسال شد."
+
+msgid "Access denied."
+msgstr "دسترسی مجاز نیست."
+
+msgid "Account %d needs a holder name and a 16-digit card number."
+msgstr "برای حساب %d، نام صاحب حساب و شماره کارت ۱۶ رقمی را وارد کنید."
+
+msgid "Account holder name"
+msgstr "نام صاحب حساب"
+
+msgid "Account line %d is invalid. Use Card | Holder, or Bank | Holder | Card | Account | Sheba. The card needs 16 digits; optional Sheba needs IR and 24 digits."
+msgstr "خط %d حساب نامعتبر است. از «کارت | صاحب حساب» یا «بانک | صاحب حساب | کارت | شماره حساب | شبا» استفاده کنید. کارت باید ۱۶ رقم و شبای اختیاری باید IR و ۲۴ رقم باشد."
+
+msgid "Add bank account"
+msgstr "افزودن حساب بانکی"
+
+msgid "Amount"
+msgstr "مبلغ"
+
+msgid "An approval was interrupted. Reconcile the bank deposit and retry approval."
+msgstr "تأیید پرداخت نیمه‌تمام مانده است. واریز بانکی را بررسی کرده و تأیید را دوباره انجام دهید."
+
+msgid "Another upload handler changed the receipt location. Check your upload or media offloading plugin."
+msgstr "افزونه دیگری محل ذخیره رسید را تغییر داده است. افزونه بارگذاری یا انتقال رسانه را بررسی کنید."
+
+msgid "Approve payment"
+msgstr "تأیید پرداخت"
+
+msgid "Bank account"
+msgstr "حساب بانکی"
+
+msgid "Bank and holder names cannot contain the | character."
+msgstr "نام بانک و صاحب حساب نباید شامل نویسه | باشد."
+
+msgid "Bank name"
+msgstr "نام بانک"
+
+msgid "Bank transfer receipt"
+msgstr "رسید انتقال بانکی"
+
+msgid "Bank transfer receipt received; payment requires manual verification."
+msgstr "رسید انتقال بانکی دریافت شد؛ پرداخت باید به صورت دستی بررسی شود."
+
+msgid "Bank transfer receipt: order #%s"
+msgstr "رسید انتقال بانکی: سفارش شماره %s"
+
+msgid "Bank transfer receipts"
+msgstr "رسیدهای انتقال بانکی"
+
+msgid "Card number"
+msgstr "شماره کارت"
+
+msgid "Card to Card Receipts requires WooCommerce 11.0 or later."
+msgstr "افزونه رسید کارت به کارت به ووکامرس نسخه ۱۱ یا جدیدتر نیاز دارد."
+
+msgid "Card to card"
+msgstr "کارت به کارت"
+
+msgid "Card to card is currently unavailable."
+msgstr "پرداخت کارت به کارت در حال حاضر در دسترس نیست."
+
+msgid "Card to card is hidden at checkout until these setup issues are resolved:"
+msgstr "تا زمانی که موارد زیر برطرف نشوند، کارت به کارت در تسویه حساب نمایش داده نمی‌شود:"
+
+msgid "Choose a JPEG, PNG or WebP image within the displayed size limit."
+msgstr "یک تصویر JPEG، PNG یا WebP با حجم مجاز انتخاب کنید."
+
+msgid "Choose a valid destination account."
+msgstr "یک حساب مقصد معتبر انتخاب کنید."
+
+msgid "Choose one receipt image."
+msgstr "یک تصویر رسید انتخاب کنید."
+
+msgid "Confirm that you verified the full deposit in the bank account."
+msgstr "تأیید کنید که واریز کامل مبلغ را در حساب بانکی بررسی کرده‌اید."
+
+msgid "Copied"
+msgstr "کپی شد"
+
+msgid "Copy card number"
+msgstr "کپی شماره کارت"
+
+msgid "Delete receipt files and plugin records when uninstalling. WooCommerce orders are preserved."
+msgstr "هنگام حذف افزونه، فایل‌ها و اطلاعات رسید حذف شوند. سفارش‌های ووکامرس حفظ می‌شوند."
+
+msgid "Destination account"
+msgstr "حساب مقصد"
+
+msgid "Destination accounts"
+msgstr "حساب‌های مقصد"
+
+msgid "Enable"
+msgstr "فعال‌سازی"
+
+msgid "Enable card to card payments"
+msgstr "فعال‌سازی پرداخت کارت به کارت"
+
+msgid "Enter each account in its own fields. Persian digits are accepted. Bank name is optional; maximum 20 accounts."
+msgstr "اطلاعات هر حساب را در فیلدهای جداگانه وارد کنید. ارقام فارسی پذیرفته می‌شوند. نام بانک اختیاری است؛ حداکثر ۲۰ حساب."
+
+msgid "Files are removed after this age only for closed or deleted orders. Active reviews are retained. Unattached uploads expire after 24 hours."
+msgstr "فایل‌ها پس از این مدت فقط برای سفارش‌های بسته‌شده یا حذف‌شده پاک می‌شوند. بررسی‌های فعال حفظ می‌شوند. بارگذاری‌های بدون سفارش پس از ۲۴ ساعت منقضی می‌شوند."
+
+msgid "I verified the full deposit in the bank account."
+msgstr "واریز کامل مبلغ را در حساب بانکی بررسی کردم."
+
+msgid "Instructions"
+msgstr "راهنمای پرداخت"
+
+msgid "Invalid bank account fields."
+msgstr "فیلدهای حساب بانکی نامعتبر هستند."
+
+msgid "Invalid receipt file."
+msgstr "فایل رسید نامعتبر است."
+
+msgid "JPEG, PNG or WebP. Maximum %s MB; 12 megapixels. Uploads expire after 24 hours."
+msgstr "JPEG، PNG یا WebP؛ حداکثر %s مگابایت و ۱۲ مگاپیکسل. بارگذاری پس از ۲۴ ساعت منقضی می‌شود."
+
+msgid "JavaScript is required for receipt review."
+msgstr "برای بررسی رسید، جاوااسکریپت باید فعال باشد."
+
+msgid "Maximum upload size (MB)"
+msgstr "حداکثر حجم بارگذاری (مگابایت)"
+
+msgid "No card to card payment for this order."
+msgstr "این سفارش پرداخت کارت به کارت ندارد."
+
+msgid "No valid destination accounts are saved. Complete the card number and holder name fields, then save changes."
+msgstr "حساب مقصد معتبری ذخیره نشده است. شماره کارت و نام صاحب حساب را وارد کرده و تغییرات را ذخیره کنید."
+
+msgid "Order"
+msgstr "سفارش"
+
+msgid "Order not found."
+msgstr "سفارش پیدا نشد."
+
+msgid "PHP GD with JPEG support is unavailable. Enable it in your hosting PHP extensions or ask your host."
+msgstr "افزونه GD در PHP با پشتیبانی JPEG در دسترس نیست. آن را در بخش افزونه‌های PHP هاست فعال کنید یا با پشتیبانی هاست تماس بگیرید."
+
+msgid "PHP OpenSSL with AES-256-GCM support is required for protected receipt uploads."
+msgstr "برای نگهداری امن رسیدها، افزونه OpenSSL در PHP با پشتیبانی AES-256-GCM لازم است."
+
+msgid "PHP cannot read and write the private receipt folder. Ask your host to check its owner and permissions."
+msgstr "PHP اجازه خواندن و نوشتن در پوشه خصوصی رسیدها را ندارد. از پشتیبانی هاست بخواهید مالک و سطح دسترسی پوشه را بررسی کند."
+
+msgid "POST requests are required."
+msgstr "درخواست باید از نوع POST باشد."
+
+msgid "Payment receipt rejected: %s. Please submit a replacement using the receipt link in your order email."
+msgstr "رسید پرداخت رد شد: %s. لطفاً از پیوند رسید در ایمیل سفارش برای ارسال رسید جایگزین استفاده کنید."
+
+msgid "Payment verified."
+msgstr "پرداخت تأیید شد."
+
+msgid "Please upload a valid receipt. Uploads expire after 24 hours."
+msgstr "لطفاً رسید معتبر بارگذاری کنید. بارگذاری‌ها پس از ۲۴ ساعت منقضی می‌شوند."
+
+msgid "Private receipt directory is not configured. On shared hosting, create a folder outside public_html and enter its absolute path below."
+msgstr "پوشه خصوصی رسیدها تنظیم نشده است. در هاست اشتراکی پوشه‌ای خارج از public_html بسازید و مسیر کامل آن را در تنظیمات زیر وارد کنید."
+
+msgid "Private receipt storage is unavailable. Please contact the store."
+msgstr "فضای خصوصی رسیدها در دسترس نیست. لطفاً با فروشگاه تماس بگیرید."
+
+msgid "Private receipt storage is unavailable. Restore access before uninstalling with deletion enabled."
+msgstr "فضای خصوصی رسیدها در دسترس نیست. پیش از حذف افزونه همراه با پاک‌سازی، دسترسی را برقرار کنید."
+
+msgid "Receipt %1$s by user #%2$d. %3$s"
+msgstr "رسید %1$s توسط کاربر شماره %2$d. %3$s"
+
+msgid "Receipt deletion failed. Restore private storage access and retry uninstall."
+msgstr "حذف رسید انجام نشد. دسترسی فضای خصوصی را برقرار کرده و حذف افزونه را دوباره انجام دهید."
+
+msgid "Receipt encryption failed."
+msgstr "رمزگذاری رسید انجام نشد."
+
+msgid "Receipt file removed by the retention or privacy policy."
+msgstr "فایل رسید طبق سیاست نگهداری یا حریم خصوصی حذف شده است."
+
+msgid "Receipt image"
+msgstr "تصویر رسید"
+
+msgid "Receipt preview"
+msgstr "پیش‌نمایش رسید"
+
+msgid "Receipt received; payment awaiting verification."
+msgstr "رسید دریافت شد؛ پرداخت در انتظار تأیید است."
+
+msgid "Receipt rejected. Please submit a replacement."
+msgstr "رسید رد شد. لطفاً رسید جایگزین ارسال کنید."
+
+msgid "Receipt retention (days)"
+msgstr "مدت نگهداری رسید (روز)"
+
+msgid "Receipt review saved."
+msgstr "بررسی رسید ذخیره شد."
+
+msgid "Receipt state"
+msgstr "وضعیت رسید"
+
+msgid "Receipt unavailable or access denied."
+msgstr "رسید در دسترس نیست یا دسترسی مجاز نیست."
+
+msgid "Receipt unavailable."
+msgstr "رسید در دسترس نیست."
+
+msgid "Receipt uploaded. Submit your order to send it for review."
+msgstr "رسید بارگذاری شد. برای ارسال به بخش بررسی، سفارش را ثبت کنید."
+
+msgid "Receive bank transfers with private receipt uploads and manual verification."
+msgstr "دریافت انتقال بانکی با بارگذاری خصوصی رسید و تأیید دستی پرداخت."
+
+msgid "Reference"
+msgstr "شماره پیگیری"
+
+msgid "Reject receipt"
+msgstr "رد رسید"
+
+msgid "Remove account"
+msgstr "حذف حساب"
+
+msgid "Request a private copy from the store. Receipt URLs are not included in public export files."
+msgstr "برای دریافت نسخه خصوصی با فروشگاه تماس بگیرید. پیوند رسید در فایل خروجی عمومی درج نمی‌شود."
+
+msgid "Review reason"
+msgstr "دلیل بررسی"
+
+msgid "Review reason (required for rejection)"
+msgstr "دلیل بررسی (برای رد رسید الزامی است)"
+
+msgid "Reviewed by user #%1$d at %2$s UTC."
+msgstr "بررسی توسط کاربر شماره %1$d در %2$s به وقت UTC."
+
+msgid "Saved destination accounts"
+msgstr "حساب‌های مقصد ذخیره‌شده"
+
+msgid "Some receipts were retained because the order is active, an erasure restriction applies, or private storage is unavailable."
+msgstr "برخی رسیدها به دلیل فعال بودن سفارش، محدودیت حذف یا در دسترس نبودن فضای خصوصی حفظ شدند."
+
+msgid "Submit replacement receipt"
+msgstr "ارسال رسید جایگزین"
+
+msgid "Submitted at (UTC)"
+msgstr "زمان ارسال (UTC)"
+
+msgid "The WordPress uploads directory is unavailable. Check the normal WordPress media upload settings."
+msgstr "پوشه بارگذاری وردپرس در دسترس نیست. تنظیمات معمول بارگذاری رسانه وردپرس را بررسی کنید."
+
+msgid "The browser tab temporarily stores an upload token and account/reference information to recover checkout. Upload protection uses WooCommerce session cookies and local hourly counters containing salted IP hashes. No analytics or receipt data is sent to the plugin author. Receipt notifications use the store's configured WordPress mail transport."
+msgstr "زبانه مرورگر برای بازیابی تسویه حساب، توکن بارگذاری و اطلاعات حساب و پیگیری را موقتاً نگه می‌دارد. حفاظت بارگذاری از کوکی نشست ووکامرس و شمارنده‌های ساعتی محلی شامل هش نمک‌دار نشانی IP استفاده می‌کند. هیچ داده تحلیلی یا رسیدی برای نویسنده افزونه ارسال نمی‌شود. اعلان رسید با سامانه ایمیل تنظیم‌شده فروشگاه در وردپرس ارسال می‌شود."
+
+msgid "The image could not be decoded."
+msgstr "تصویر قابل پردازش نیست."
+
+msgid "The order amount or currency changed after the receipt upload. Reconcile the difference before approval."
+msgstr "مبلغ یا واحد پول سفارش پس از بارگذاری رسید تغییر کرده است. پیش از تأیید، اختلاف را بررسی کنید."
+
+msgid "The order total changed. Do not transfer again; the store must reconcile the difference."
+msgstr "مبلغ سفارش تغییر کرده است. دوباره وجه واریز نکنید؛ فروشگاه باید اختلاف را بررسی کند."
+
+msgid "The order total or currency changed. Approval is blocked; reconcile the difference or reject and request a replacement."
+msgstr "مبلغ یا واحد پول سفارش تغییر کرده است. تأیید مسدود است؛ اختلاف را بررسی کنید یا رسید را رد کرده و رسید جایگزین بخواهید."
+
+msgid "The private receipt folder does not exist or PHP cannot access it. Check the absolute path and hosting open_basedir restrictions."
+msgstr "پوشه خصوصی رسیدها وجود ندارد یا PHP به آن دسترسی ندارد. مسیر کامل و محدودیت open_basedir هاست را بررسی کنید."
+
+msgid "The private receipt folder must have permissions 0700, with no group or public access."
+msgstr "سطح دسترسی پوشه خصوصی رسیدها باید 0700 و بدون دسترسی گروه یا عموم باشد."
+
+msgid "The protected receipt is invalid or cannot be decrypted."
+msgstr "رسید محافظت‌شده نامعتبر است یا امکان رمزگشایی آن وجود ندارد."
+
+msgid "The receipt could not be recorded. Please try again."
+msgstr "ثبت رسید انجام نشد. لطفاً دوباره تلاش کنید."
+
+msgid "The receipt could not be saved privately."
+msgstr "ذخیره خصوصی رسید انجام نشد."
+
+msgid "The receipt directory must be outside every public web root."
+msgstr "پوشه رسید باید خارج از تمام ریشه‌های عمومی وب باشد."
+
+msgid "The receipt encryption key is unavailable. Restore it from the database backup."
+msgstr "کلید رمزگذاری رسید در دسترس نیست. آن را از نسخه پشتیبان پایگاه داده بازیابی کنید."
+
+msgid "The receipt is unavailable. Please contact the store."
+msgstr "رسید در دسترس نیست. لطفاً با فروشگاه تماس بگیرید."
+
+msgid "The receipt request could not be completed. Please contact the store; do not transfer again."
+msgstr "درخواست رسید تکمیل نشد. با فروشگاه تماس بگیرید؛ دوباره وجه واریز نکنید."
+
+msgid "The receipt upload folder must be readable and writable inside the WordPress uploads directory."
+msgstr "پوشه رسید باید درون پوشه بارگذاری وردپرس و برای PHP قابل خواندن و نوشتن باشد."
+
+msgid "The receipt upload limit has been reached. Please contact the store."
+msgstr "محدودیت بارگذاری رسید تکمیل شده است. لطفاً با فروشگاه تماس بگیرید."
+
+msgid "The receipt was claimed by another request. Please retry."
+msgstr "رسید در درخواست دیگری استفاده شد. لطفاً دوباره تلاش کنید."
+
+msgid "The request failed. Your transfer may already have succeeded; do not transfer again. Retry or contact the store."
+msgstr "درخواست انجام نشد. انتقال وجه شما ممکن است انجام شده باشد؛ دوباره وجه واریز نکنید. دوباره تلاش کنید یا با فروشگاه تماس بگیرید."
+
+msgid "The request origin could not be verified. Reload checkout."
+msgstr "مبدأ درخواست قابل تأیید نیست. صفحه تسویه حساب را تازه‌سازی کنید."
+
+msgid "The review could not be saved."
+msgstr "ذخیره بررسی انجام نشد."
+
+msgid "The review failed. Reload and check the order before retrying."
+msgstr "بررسی انجام نشد. پیش از تلاش دوباره، صفحه سفارش را تازه‌سازی و وضعیت را بررسی کنید."
+
+msgid "The total or currency changed. Restore the submitted total or request a replacement receipt before approval."
+msgstr "مبلغ یا واحد پول تغییر کرده است. پیش از تأیید، مبلغ زمان ارسال را بازگردانید یا رسید جایگزین بخواهید."
+
+msgid "This image needs too much memory. Please upload a smaller image."
+msgstr "این تصویر به حافظه زیادی نیاز دارد. لطفاً تصویر کوچک‌تری بارگذاری کنید."
+
+msgid "This order cannot accept a receipt."
+msgstr "این سفارش نمی‌تواند رسید دریافت کند."
+
+msgid "This order cannot accept a replacement receipt."
+msgstr "این سفارش نمی‌تواند رسید جایگزین دریافت کند."
+
+msgid "This order is being updated. Please try again."
+msgstr "این سفارش در حال به‌روزرسانی است. لطفاً دوباره تلاش کنید."
+
+msgid "This order link is invalid or expired."
+msgstr "پیوند سفارش نامعتبر یا منقضی شده است."
+
+msgid "This receipt already belongs to order #%d. Do not transfer again; contact the store if needed."
+msgstr "این رسید به سفارش شماره %d تعلق دارد. دوباره وجه واریز نکنید؛ در صورت نیاز با فروشگاه تماس بگیرید."
+
+msgid "This receipt or order has already been updated. Reload the order."
+msgstr "این رسید یا سفارش قبلاً به‌روزرسانی شده است. صفحه سفارش را تازه‌سازی کنید."
+
+msgid "This receipt was uploaded for a different checkout or order."
+msgstr "این رسید برای تسویه حساب یا سفارش دیگری بارگذاری شده است."
+
+msgid "Title"
+msgstr "عنوان"
+
+msgid "Tracking number (optional)"
+msgstr "شماره پیگیری (اختیاری)"
+
+msgid "Transfer the exact total to a listed account, then upload your receipt. Your order will await verification."
+msgstr "مبلغ دقیق سفارش را به یکی از حساب‌ها واریز کرده، سپس رسید را بارگذاری کنید. سفارش شما در انتظار تأیید خواهد بود."
+
+msgid "Uninstall"
+msgstr "حذف افزونه"
+
+msgid "Upload a receipt before submitting your order."
+msgstr "پیش از ثبت سفارش، رسید را بارگذاری کنید."
+
+msgid "Upload failed or the image exceeds the allowed size."
+msgstr "بارگذاری انجام نشد یا حجم تصویر بیشتر از حد مجاز است."
+
+msgid "Uploading receipt…"
+msgstr "در حال بارگذاری رسید…"
+
+msgid "Use a valid JPEG, PNG or WebP image, at most 6000 pixels per side and 12 megapixels."
+msgstr "یک تصویر معتبر JPEG، PNG یا WebP با حداکثر ۶۰۰۰ پیکسل در هر ضلع و ۱۲ مگاپیکسل انتخاب کنید."
+
+msgid "Use at most 20 accounts, with five fields per line."
+msgstr "حداکثر ۲۰ حساب با پنج فیلد در هر خط وارد کنید."
+
+msgid "Use at most 20 bank accounts."
+msgstr "حداکثر ۲۰ حساب بانکی وارد کنید."
+
+msgid "View receipt"
+msgstr "مشاهده رسید"
+
+msgid "View your receipt or submit a replacement. This private link expires in seven days; do not share it."
+msgstr "رسید را مشاهده یا رسید جایگزین ارسال کنید. این پیوند خصوصی پس از هفت روز منقضی می‌شود؛ آن را به اشتراک نگذارید."
+
+msgid "When you pay by bank transfer, we store your receipt image, payment reference, destination account, order amount and review history. Images are privately stored and accessible to authorized store staff and the order customer. Unattached uploads expire after 24 hours. Receipts for closed orders are removed according to the store retention setting (90 days by default); active reviews and required records may be retained longer. Private guest access links expire after seven days. Contact the store to request access or erasure. No receipt is sent to third-party analysis services."
+msgstr "در پرداخت انتقال بانکی، تصویر رسید، شماره پیگیری، حساب مقصد، مبلغ سفارش و سابقه بررسی ذخیره می‌شود. تصاویر به صورت خصوصی نگهداری می‌شوند و کارکنان مجاز فروشگاه و مشتری سفارش به آن‌ها دسترسی دارند. بارگذاری‌های بدون سفارش پس از ۲۴ ساعت منقضی می‌شوند. رسید سفارش‌های بسته‌شده طبق تنظیم نگهداری فروشگاه (پیش‌فرض ۹۰ روز) حذف می‌شود؛ بررسی‌های فعال و سوابق ضروری ممکن است بیشتر نگهداری شوند. پیوند خصوصی مهمان پس از هفت روز منقضی می‌شود. برای دریافت اطلاعات یا درخواست حذف با فروشگاه تماس بگیرید. هیچ رسیدی به سرویس تحلیل شخص ثالث ارسال نمی‌شود."
+
+msgid "WooCommerce did not complete payment. Review the order before retrying."
+msgstr "ووکامرس پرداخت را تکمیل نکرد. پیش از تلاش دوباره، سفارش را بررسی کنید."
+
+msgid "WordPress cannot create its receipt upload folder. Check the normal uploads directory permissions."
+msgstr "وردپرس نمی‌تواند پوشه رسید را ایجاد کند. دسترسی پوشه معمول بارگذاری را بررسی کنید."
+
+msgid "WordPress could not save the protected receipt."
+msgstr "وردپرس نتوانست رسید محافظت‌شده را ذخیره کند."
+
+msgid "You cannot review this receipt."
+msgstr "شما اجازه بررسی این رسید را ندارید."
+
+msgid "Your cart is empty. Please return to checkout."
+msgstr "سبد خرید خالی است. لطفاً به صفحه تسویه حساب بازگردید."
+
+msgid "Your upload session expired. Reload this page; do not transfer again."
+msgstr "نشست بارگذاری منقضی شده است. صفحه را تازه‌سازی کنید؛ دوباره وجه واریز نکنید."

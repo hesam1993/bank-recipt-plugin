@@ -1,0 +1,17 @@
+Source and licensing
+
+Card to Card Receipts for WooCommerce is authored by Hesam MM (WordPress.org: `hesamst`) and licensed GPL-2.0-or-later. The full GPL version 2 is in `license.txt`; `LICENSE` contains this project's copyright and license notice.
+
+The included PHP, JavaScript and CSS files are the readable runtime source. There are no minified assets, bundled JavaScript dependencies, remote code loaders, telemetry, commercial license checks, or remotely executed services. Receipt encryption protects customer data; it does not hide executable source code.
+
+WordPress supplies the registered `jquery`, `wp-element` and `wp-html-entities` scripts; WooCommerce supplies the registered Blocks scripts. These are dependencies installed separately, not copies bundled in this plugin. PHP GD and OpenSSL are server extensions. No third-party runtime source, images, fonts, logos or commercial assets are bundled.
+
+PHP files are in `includes/`, with bootstrap in `c2c-receipts.php` and opt-in cleanup in `uninstall.php`. Frontend and settings source files are in `assets/`. No JavaScript transpiler or build step is required. WordPress source gettext strings use the `c2c-receipts` text domain, matching the intended directory slug.
+
+Translations include editable `.po` files and compiled `.mo` files. With GNU gettext installed, rebuild a translation using:
+
+msgfmt languages/c2c-receipts-fa_IR.po -o languages/c2c-receipts-fa_IR.mo
+
+The full development workspace also contains dependency-free JavaScript tests, PHP/WooCommerce test harnesses, translation tooling, package validation, and GitHub Actions workflows. Tests and development dependencies are omitted from the installation ZIP. The packaged runtime source can be edited directly without those tools.
+
+The plugin uses “for WooCommerce” to describe compatibility. It does not present itself as an official WooCommerce or WordPress product.
