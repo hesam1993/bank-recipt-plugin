@@ -1,6 +1,8 @@
 import importlib.util
 import json
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -34,6 +36,54 @@ class ReleaseTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             self.records(directory)
             self.assertEqual(audit.validated_versions(directory), ('7.1', '11.3.0'))
+
+    def test_routine_matrix_covers_minimum_and_newest_php_in_both_storage_modes(self):
+        entries = audit.validation_matrix('routine')
+        self.assertEqual({(item['php'], item['hpos'], item['profile']) for item in entries}, {
+            ('8.3', 'yes', 'minimum'), ('8.3', 'no', 'minimum'),
+            ('8.6', 'yes', 'latest'), ('8.6', 'no', 'latest'),
+        })
+        self.assertEqual(len(entries), 4)
+
+    def test_release_matrix_keeps_all_supported_php_versions(self):
+        entries = audit.validation_matrix('release')
+        self.assertEqual(len(entries), 10)
+        for branch in ('8.3', '8.4', '8.5', '8.6'):
+            self.assertEqual({item['hpos'] for item in entries if item['php'] == branch and item['profile'] == 'latest'}, {'yes', 'no'})
+
+    def test_routine_evidence_is_accepted_only_for_routine_scope(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for entry in audit.validation_matrix('routine'):
+                self.record(directory, entry['php'], entry['hpos'], entry['profile'])
+            self.assertEqual(audit.validated_versions(directory, scope='routine'), ('7.1', '11.3.0'))
+            with self.assertRaisesRegex(ValueError, 'All 10 matching release'):
+                audit.validated_versions(directory)
+
+    def test_missing_routine_record_blocks_candidate_validation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for entry in audit.validation_matrix('routine')[:-1]:
+                self.record(directory, entry['php'], entry['hpos'], entry['profile'])
+            with self.assertRaisesRegex(ValueError, 'All 4 matching routine'):
+                audit.validated_versions(directory, scope='routine')
+
+    def test_wrong_minimum_version_blocks_release(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.records(directory)
+            path = Path(directory) / '8.3-no-minimum' / 'validation.json'
+            record = json.loads(path.read_text())
+            record['woocommerce_version'] = '11.0.1'
+            path.write_text(json.dumps(record))
+            with self.assertRaisesRegex(ValueError, 'wrong versions'):
+                audit.validated_versions(directory)
+
+    def test_submission_cli_rejects_routine_scope(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result = subprocess.run([
+                sys.executable, str(ROOT / 'scripts/package.py'), '--wordpress-org',
+                '--validation-dir', directory, '--validation-scope', 'routine',
+            ], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('requires the full release matrix', result.stderr)
 
     def test_missing_runtime_records_block_release(self):
         with tempfile.TemporaryDirectory() as directory:

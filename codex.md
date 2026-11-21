@@ -59,9 +59,9 @@ composer standards
 php tests/storage.php
 ```
 
-Use the GitHub Actions workflow for the PHP/WordPress/WooCommerce matrix, HPOS modes, and HTTP flows. Integration fixtures require disposable installations and databases. Report any checks that could not run.
+The GitHub Actions workflow runs shared JavaScript, translation, Python and coding-standard checks once. Routine pushes and pull requests test four configurations: minimum supported versions and newest supported PHP with current WordPress/WooCommerce, each with HPOS enabled and disabled. Nightly runs, tag pushes and manual runs with `full_matrix` enabled test all supported PHP branches in `scripts/ci-matrix.json`. `scripts/ci_matrix.py` generates the selected matrix. Integration fixtures require disposable installations and databases. Report any checks that could not run.
 
-CI installs `tests/ci-store.php` as a must-use plugin in its disposable store and sets the `C2C_TEST_HPOS` configuration constant. This fixture selects the order datastore for CLI and HTTP requests and disables synchronization. Keep it out of production installations and runtime ZIPs. `scripts/assert_test_environment.php` checks measured PHP, HPOS mode, and order datastore against the job's `C2C_TEST_PHP` and `C2C_TEST_HPOS` environment variables before integration tests and evidence recording.
+CI installs `tests/ci-store.php` as a must-use plugin in its disposable store and sets the `C2C_TEST_HPOS` configuration constant. This fixture selects the order datastore for CLI and HTTP requests and disables synchronization. Keep it out of production installations and runtime ZIPs. Run `scripts/setup_test_store.php` through WP-CLI before integration tests: it initializes WooCommerce's HPOS schema and creates, reloads and deletes a smoke-test order. `scripts/assert_test_environment.php` checks measured PHP, HPOS mode, datastore and required HPOS tables before integration tests and evidence recording.
 
 ## Packaging and documentation
 
@@ -71,6 +71,7 @@ python3 scripts/package.py
 
 - The review archive is `dist/c2c-receipts-<version>-review-candidate.zip`, containing one `c2c-receipts/` directory.
 - Use `--wordpress-org --validation-dir <directory>` only with matching successful runtime evidence for submission packaging.
+- Routine CI validates its four records with `--validation-scope routine` and produces a review candidate. Submission packaging requires release scope and the full matrix. Matrix generation and evidence validation share `scripts/ci-matrix.json`.
 - Exclude development dependencies, local configuration, tests, development notes, and directory artwork from installation ZIPs.
 - Keep user instructions in `README.md`, directory metadata in `readme.txt`, and runtime source details in `source.txt`.
 - Keep this file focused on current project structure, conventions, and commands.

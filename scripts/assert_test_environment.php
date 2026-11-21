@@ -20,4 +20,14 @@ if ( $actual_php !== $expected_php || ! in_array( $expected_hpos, array( 'yes', 
 	) );
 }
 
+if ( 'yes' === $actual_hpos ) {
+	global $wpdb;
+	$hpos_store = wc_get_container()->get( \Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore::class );
+	foreach ( $hpos_store->get_all_table_names() as $table ) {
+		if ( $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ) ) {
+			WP_CLI::error( sprintf( 'HPOS schema is incomplete: missing table %s. Run scripts/setup_test_store.php first.', $table ) );
+		}
+	}
+}
+
 WP_CLI::success( sprintf( 'Verified PHP %s / HPOS %s / datastore %s.', $actual_php, $actual_hpos, $actual_store ) );

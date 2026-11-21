@@ -11,15 +11,19 @@ version = re.search(r"^ \* Version: ([0-9.]+)$", (root / "c2c-receipts.php").rea
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--wordpress-org', action='store_true', help='Require complete matching runtime evidence and add verified compatibility metadata.')
 parser.add_argument('--validation-dir', type=Path)
+parser.add_argument('--validation-scope', choices=('routine', 'release'), default='release')
 args = parser.parse_args()
 problems = audit(root)
 if problems:
     raise SystemExit('\n'.join(problems))
 overlays = {}
+if args.wordpress_org and args.validation_scope != 'release':
+    raise SystemExit('WordPress.org submission packaging requires the full release matrix.')
+if args.wordpress_org and not args.validation_dir:
+    raise SystemExit('WordPress.org packaging requires --validation-dir with passing runtime records. No tested versions will be invented.')
+if args.validation_dir:
+    tested, woo = validated_versions(args.validation_dir, root, args.validation_scope)
 if args.wordpress_org:
-    if not args.validation_dir:
-        raise SystemExit('WordPress.org packaging requires --validation-dir with passing runtime records. No tested versions will be invented.')
-    tested, woo = validated_versions(args.validation_dir, root)
     readme = (root / 'readme.txt').read_text()
     readme = re.sub(r'^Tested up to: .+\n', '', readme, flags=re.MULTILINE)
     readme = readme.replace('Requires at least: 7.0\n', f'Requires at least: 7.0\nTested up to: {tested}\n', 1)

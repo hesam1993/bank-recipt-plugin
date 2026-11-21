@@ -80,10 +80,21 @@ def audit(root=ROOT):
     return errors
 
 
-def validated_versions(directory, root=ROOT):
+def validation_matrix(scope='release', root=ROOT):
+    if scope not in ('routine', 'release'):
+        raise ValueError('Validation scope must be routine or release.')
+    config = json.loads((root / 'scripts/ci-matrix.json').read_text())
+    branches = config['php'] if scope == 'release' else config['php'][-1:]
+    latest = [dict(php=branch, hpos=hpos, profile='latest', wordpress='latest', woocommerce='latest')
+              for branch in branches for hpos in ('yes', 'no')]
+    minimum = [dict(config['minimum'], hpos=hpos, profile='minimum') for hpos in ('yes', 'no')]
+    return latest + minimum
+
+
+def validated_versions(directory, root=ROOT, scope='release'):
     records = [(path, json.loads(path.read_text())) for path in sorted(Path(directory).rglob('validation.json'))]
-    expected = {(branch, hpos, 'latest') for branch in ('8.3', '8.4', '8.5', '8.6') for hpos in ('yes', 'no')}
-    expected |= {('8.3', hpos, 'minimum') for hpos in ('yes', 'no')}
+    matrix = validation_matrix(scope, root)
+    expected = {(entry['php'], entry['hpos'], entry['profile']): entry for entry in matrix}
     seen = {}
     versions = set()
     woo = set()
@@ -105,10 +116,11 @@ def validated_versions(directory, root=ROOT):
         if record['profile'] == 'latest':
             versions.add('.'.join(record['wordpress_version'].split('.')[:2]))
             woo.add(record['woocommerce_version'])
-        elif not record['wordpress_version'].startswith('7.0') or not record['woocommerce_version'].startswith('11.0.'):
+        elif record['wordpress_version'] != expected[key]['wordpress'] or record['woocommerce_version'] != expected[key]['woocommerce']:
             raise ValueError('Minimum-support validation ran against the wrong versions.')
-    if set(seen) != expected or len(versions) != 1:
-        raise ValueError('All ten matching matrix records are required; latest WordPress must agree.')
+    if set(seen) != set(expected) or len(versions) != 1:
+        missing = sorted(set(expected) - set(seen))
+        raise ValueError(f'All {len(expected)} matching {scope} matrix records are required; latest WordPress must agree. Missing: {missing!r}')
     tested = versions.pop()
     if not re.fullmatch(r'\d+\.\d+', tested):
         raise ValueError('A stable numeric WordPress version is required.')
