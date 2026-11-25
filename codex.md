@@ -63,6 +63,8 @@ The GitHub Actions workflow runs shared JavaScript, translation, Python and codi
 
 CI installs `tests/ci-store.php` as a must-use plugin in its disposable store and sets the `C2C_TEST_HPOS` configuration constant. This fixture selects the order datastore for CLI and HTTP requests and disables synchronization. Keep it out of production installations and runtime ZIPs. Run `scripts/setup_test_store.php` through WP-CLI before integration tests: it initializes WooCommerce's HPOS schema and creates, reloads and deletes a smoke-test order. `scripts/assert_test_environment.php` checks measured PHP, HPOS mode, datastore and required HPOS tables before integration tests and evidence recording.
 
+`scripts/install_wp_cli.sh` installs the pinned official WP-CLI PHAR with download retries and SHA-256 verification, checks it with PHP, and exports its directory through `GITHUB_PATH`. Update its version and checksum together when upgrading WP-CLI. PHP setup must fail immediately if a required extension cannot be installed.
+
 ## Packaging and documentation
 
 ```sh

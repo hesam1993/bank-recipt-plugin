@@ -92,13 +92,17 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Set up PHP, image extensions and WP-CLI
+      - name: Set up PHP and image extensions
         uses: shivammathur/setup-php@v2
         with:
           php-version: '${{ matrix.php }}'
           extensions: gd, mysqli, openssl
-          tools: wp-cli
+          tools: none
           coverage: none
+        env:
+          fail-fast: true
+      - name: Install and verify pinned WP-CLI with download retries
+        run: bash scripts/install_wp_cli.sh
       - name: Check PHP file syntax
         run: find c2c-receipts.php uninstall.php includes tests scripts -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Test receipt encryption and private file storage
