@@ -6,17 +6,17 @@ defined( 'ABSPATH' ) || exit;
 final class Privacy {
 	public static function register(): void {
 		add_filter( 'wp_privacy_personal_data_exporters', static function ( $exporters ) {
-			$exporters['c2c-receipts'] = array( 'exporter_friendly_name' => __( 'Bank transfer receipts', 'c2c-receipts' ), 'callback' => array( self::class, 'export' ) );
+			$exporters['c2c-receipts'] = array( 'exporter_friendly_name' => __( 'Bank transfer receipts', 'card-to-card-receipts-for-woocommerce' ), 'callback' => array( self::class, 'export' ) );
 			return $exporters;
 		}, 5 );
 		add_filter( 'wp_privacy_personal_data_erasers', static function ( $erasers ) {
-			$erasers['c2c-receipts'] = array( 'eraser_friendly_name' => __( 'Bank transfer receipts', 'c2c-receipts' ), 'callback' => array( self::class, 'erase' ) );
+			$erasers['c2c-receipts'] = array( 'eraser_friendly_name' => __( 'Bank transfer receipts', 'card-to-card-receipts-for-woocommerce' ), 'callback' => array( self::class, 'erase' ) );
 			return $erasers;
 		}, 5 );
 		add_action( 'admin_init', static function () {
 			if ( function_exists( 'wp_add_privacy_policy_content' ) ) {
-				$content = wpautop( __( 'When you pay by bank transfer, we store your receipt image, payment reference, destination account, order amount and review history. Images are privately stored and accessible to authorized store staff and the order customer. Unattached uploads expire after 24 hours. Receipts for closed orders are removed according to the store retention setting (90 days by default); active reviews and required records may be retained longer. Private guest access links expire after seven days. Contact the store to request access or erasure. No receipt is sent to third-party analysis services.', 'c2c-receipts' ) );
-				$content .= wpautop( __( 'The browser tab temporarily stores an upload token and account/reference information to recover checkout. Upload protection uses WooCommerce session cookies and local hourly counters containing salted IP hashes. No analytics or receipt data is sent to the plugin author. Receipt notifications use the store\'s configured WordPress mail transport.', 'c2c-receipts' ) );
+				$content = wpautop( __( 'When you pay by bank transfer, we store your receipt image, payment reference, destination account, order amount and review history. Images are privately stored and accessible to authorized store staff and the order customer. Unattached uploads expire after 24 hours. Receipts for closed orders are removed according to the store retention setting (90 days by default); active reviews and required records may be retained longer. Private guest access links expire after seven days. Contact the store to request access or erasure. No receipt is sent to third-party analysis services.', 'card-to-card-receipts-for-woocommerce' ) );
+				$content .= wpautop( __( 'The browser tab temporarily stores an upload token and account/reference information to recover checkout. Upload protection uses WooCommerce session cookies and local hourly counters containing salted IP hashes. No analytics or receipt data is sent to the plugin author. Receipt notifications use the store\'s configured WordPress mail transport.', 'card-to-card-receipts-for-woocommerce' ) );
 				wp_add_privacy_policy_content( 'Card to Card Receipts', $content );
 			}
 		} );
@@ -40,16 +40,16 @@ final class Privacy {
 		foreach ( $orders as $order ) {
 			foreach ( self::receipts( $order->get_id() ) as $row ) {
 				$data[] = array(
-					'group_id' => 'c2c-receipts', 'group_label' => __( 'Bank transfer receipts', 'c2c-receipts' ),
+					'group_id' => 'c2c-receipts', 'group_label' => __( 'Bank transfer receipts', 'card-to-card-receipts-for-woocommerce' ),
 					'item_id' => 'c2c-' . $row->id,
 					'data' => array(
-						array( 'name' => __( 'Order', 'c2c-receipts' ), 'value' => $order->get_order_number() ),
-						array( 'name' => __( 'Receipt state', 'c2c-receipts' ), 'value' => $row->state ),
-						array( 'name' => __( 'Amount', 'c2c-receipts' ), 'value' => Support::amount( $row->amount, $row->currency ) ),
-						array( 'name' => __( 'Reference', 'c2c-receipts' ), 'value' => $row->reference ),
-						array( 'name' => __( 'Review reason', 'c2c-receipts' ), 'value' => $row->reason ),
-						array( 'name' => __( 'Submitted at (UTC)', 'c2c-receipts' ), 'value' => $row->created_at ),
-						array( 'name' => __( 'Receipt image', 'c2c-receipts' ), 'value' => __( 'Request a private copy from the store. Receipt URLs are not included in public export files.', 'c2c-receipts' ) ),
+						array( 'name' => __( 'Order', 'card-to-card-receipts-for-woocommerce' ), 'value' => $order->get_order_number() ),
+						array( 'name' => __( 'Receipt state', 'card-to-card-receipts-for-woocommerce' ), 'value' => $row->state ),
+						array( 'name' => __( 'Amount', 'card-to-card-receipts-for-woocommerce' ), 'value' => Support::amount( $row->amount, $row->currency ) ),
+						array( 'name' => __( 'Reference', 'card-to-card-receipts-for-woocommerce' ), 'value' => $row->reference ),
+						array( 'name' => __( 'Review reason', 'card-to-card-receipts-for-woocommerce' ), 'value' => $row->reason ),
+						array( 'name' => __( 'Submitted at (UTC)', 'card-to-card-receipts-for-woocommerce' ), 'value' => $row->created_at ),
+						array( 'name' => __( 'Receipt image', 'card-to-card-receipts-for-woocommerce' ), 'value' => __( 'Request a private copy from the store. Receipt URLs are not included in public export files.', 'card-to-card-receipts-for-woocommerce' ) ),
 					),
 				);
 			}
@@ -96,6 +96,6 @@ final class Privacy {
 				$retained = true;
 			}
 		}
-		return array( 'items_removed' => $removed, 'items_retained' => $retained, 'messages' => $retained ? array( __( 'Some receipts were retained because the order is active, an erasure restriction applies, or private storage is unavailable.', 'c2c-receipts' ) ) : array(), 'done' => count( $orders ) < 20 );
+		return array( 'items_removed' => $removed, 'items_retained' => $retained, 'messages' => $retained ? array( __( 'Some receipts were retained because the order is active, an erasure restriction applies, or private storage is unavailable.', 'card-to-card-receipts-for-woocommerce' ) ) : array(), 'done' => count( $orders ) < 20 );
 	}
 }

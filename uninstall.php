@@ -19,10 +19,10 @@ do {
 	foreach ( $c2creceipts_rows as $c2creceipts_row ) {
 		try {
 			if ( ! \C2CReceipts\Storage::delete( $c2creceipts_row->filename ) ) {
-				wp_die( esc_html__( 'Receipt deletion failed. Restore private storage access and retry uninstall.', 'c2c-receipts' ) );
+				wp_die( esc_html__( 'Receipt deletion failed. Restore private storage access and retry uninstall.', 'card-to-card-receipts-for-woocommerce' ) );
 			}
 		} catch ( \Throwable $c2creceipts_error ) {
-			wp_die( esc_html__( 'Private receipt storage is unavailable. Restore access before uninstalling with deletion enabled.', 'c2c-receipts' ) );
+			wp_die( esc_html__( 'Private receipt storage is unavailable. Restore access before uninstalling with deletion enabled.', 'card-to-card-receipts-for-woocommerce' ) );
 		}
 		$c2creceipts_cursor = (int) $c2creceipts_row->id;
 	}

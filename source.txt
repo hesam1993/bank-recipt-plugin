@@ -6,11 +6,11 @@ The included PHP, JavaScript and CSS files are the readable runtime source. Ther
 
 WordPress supplies the registered `jquery`, `wp-element` and `wp-html-entities` scripts; WooCommerce supplies the registered Blocks scripts. These are dependencies installed separately, not copies bundled in this plugin. PHP GD and OpenSSL are server extensions. No third-party runtime source, images, fonts, logos or commercial assets are bundled.
 
-PHP files are in `includes/`, with bootstrap in `c2c-receipts.php` and opt-in cleanup in `uninstall.php`. Frontend and settings source files are in `assets/`. No JavaScript transpiler or build step is required. WordPress source gettext strings use the `c2c-receipts` text domain, matching the intended directory slug.
+PHP files are in `includes/`, with bootstrap in `c2c-receipts.php` and opt-in cleanup in `uninstall.php`. Frontend and settings source files are in `assets/`. No JavaScript transpiler or build step is required. WordPress source gettext strings use the `card-to-card-receipts-for-woocommerce` text domain, matching the intended directory slug.
 
 Translations include editable `.po` files and compiled `.mo` files. With GNU gettext installed, rebuild a translation using:
 
-msgfmt languages/c2c-receipts-fa_IR.po -o languages/c2c-receipts-fa_IR.mo
+msgfmt languages/card-to-card-receipts-for-woocommerce-fa_IR.po -o languages/card-to-card-receipts-for-woocommerce-fa_IR.mo
 
 The full development workspace also contains dependency-free JavaScript tests, PHP/WooCommerce test harnesses, translation tooling, package validation, and GitHub Actions workflows. Tests and development dependencies are omitted from the installation ZIP. The packaged runtime source can be edited directly without those tools.
 

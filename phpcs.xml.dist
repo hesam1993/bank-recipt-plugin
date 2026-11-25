@@ -6,6 +6,7 @@
   <file>uninstall.php</file>
   <arg name="extensions" value="php"/>
   <config name="testVersion" value="8.3-"/>
+  <config name="text_domain" value="card-to-card-receipts-for-woocommerce"/>
   <rule ref="WordPress.Security"/>
   <rule ref="WordPress.DB"/>
   <rule ref="WordPress.WP.I18n"/>

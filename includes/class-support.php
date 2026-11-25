@@ -23,7 +23,7 @@ final class Support {
 			}
 			$parts = array_map( 'trim', explode( '|', $line ) );
 			if ( count( $parts ) > 5 || count( $accounts ) >= 20 ) {
-				throw new \InvalidArgumentException( esc_html( __( 'Use at most 20 accounts, with five fields per line.', 'c2c-receipts' ) ) );
+				throw new \InvalidArgumentException( esc_html( __( 'Use at most 20 accounts, with five fields per line.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			if ( count( $parts ) === 2 ) {
 				[ $card, $holder ] = $parts;
@@ -36,7 +36,7 @@ final class Support {
 			$iban = strtoupper( preg_replace( '/\s+/u', '', self::digits( $iban ) ) );
 			if ( '' === $holder || ! preg_match( '/^\d{16}$/D', $card ) || ( '' !== $number && ! preg_match( '/^\d{1,40}$/D', $number ) ) || ( '' !== $iban && ! preg_match( '/^IR\d{24}$/D', $iban ) ) ) {
 				/* translators: %d: one-based line number in legacy account configuration. */
-				throw new \InvalidArgumentException( esc_html( sprintf( __( 'Account line %d is invalid. Use Card | Holder, or Bank | Holder | Card | Account | Sheba. The card needs 16 digits; optional Sheba needs IR and 24 digits.', 'c2c-receipts' ), $index + 1 ) ) );
+				throw new \InvalidArgumentException( esc_html( sprintf( __( 'Account line %d is invalid. Use Card | Holder, or Bank | Holder | Card | Account | Sheba. The card needs 16 digits; optional Sheba needs IR and 24 digits.', 'card-to-card-receipts-for-woocommerce' ), $index + 1 ) ) );
 			}
 			$account = array( 'bank' => sanitize_text_field( $bank ), 'holder' => sanitize_text_field( $holder ), 'card' => $card, 'number' => $number, 'iban' => $iban );
 			$account['id'] = substr( hash( 'sha256', wp_json_encode( $account ) ), 0, 24 );
@@ -72,7 +72,7 @@ final class Support {
 		// Connection-scoped MySQL locks are released even if a PHP request crashes.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Connection-scoped advisory locks are side effects and must never be object-cached.
 		if ( '1' !== (string) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 3)', $name ) ) ) {
-			throw new \RuntimeException( esc_html( __( 'This order is being updated. Please try again.', 'c2c-receipts' ) ) );
+			throw new \RuntimeException( esc_html( __( 'This order is being updated. Please try again.', 'card-to-card-receipts-for-woocommerce' ) ) );
 		}
 		try {
 			return $callback();

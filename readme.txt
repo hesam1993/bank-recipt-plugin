@@ -5,7 +5,7 @@ Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
 Requires Plugins: woocommerce
-Stable tag: 0.1.4
+Stable tag: 0.1.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,11 +70,16 @@ The encryption key is stored in the non-autoloaded c2c_receipts_encryption_key o
 
 All runtime PHP, JavaScript and CSS is included in readable, unminified form. The plugin uses WordPress's registered React/jQuery and WooCommerce Blocks scripts; it does not bundle copies. No JavaScript build step is required. Editable gettext PO sources are included beside MO files; rebuild with GNU gettext, for example:
 
-msgfmt languages/c2c-receipts-fa_IR.po -o languages/c2c-receipts-fa_IR.mo
+msgfmt languages/card-to-card-receipts-for-woocommerce-fa_IR.po -o languages/card-to-card-receipts-for-woocommerce-fa_IR.mo
 
 See source.txt for the source layout and license.txt for the complete GPL version 2 license. No external service account, license key, or purchase is required.
 
 == Changelog ==
+
+= 0.1.5 =
+* Match the WordPress.org slug in translation domains, Persian catalogs and installation packages.
+* Use the distinctive C2CRECEIPTS prefix for internal bootstrap constants.
+* Check the assigned directory slug in CI; preserve saved settings, receipt storage and gateway identifiers.
 
 = 0.1.4 =
 * Address the supplied Plugin Check report: escape exception messages, sanitize request inputs, and use WordPress filesystem helpers.

@@ -73,14 +73,14 @@ final class Receipts {
 		} else {
 			$account = $accounts[ $account_id ] ?? null;
 			if ( ! WC()->cart || WC()->cart->is_empty() ) {
-				throw new \RuntimeException( esc_html( __( 'Your cart is empty. Please return to checkout.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'Your cart is empty. Please return to checkout.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			WC()->cart->calculate_totals();
 			$amount = WC()->cart->get_total( 'edit' );
 			$currency = get_woocommerce_currency();
 		}
 		if ( ! $account ) {
-			throw new \RuntimeException( esc_html( __( 'Choose a valid destination account.', 'c2c-receipts' ) ) );
+			throw new \RuntimeException( esc_html( __( 'Choose a valid destination account.', 'card-to-card-receipts-for-woocommerce' ) ) );
 		}
 		$owner = Support::owner();
 		// Serialize storage writes across sessions so concurrent requests cannot bypass safety budgets.
@@ -91,7 +91,7 @@ final class Receipts {
 			$rate_key = 'c2c_rate_' . hash_hmac( 'sha256', $ip, wp_salt( 'auth' ) );
 			$rate = (array) get_transient( $rate_key );
 			if ( (int) ( $rate['count'] ?? 0 ) >= 30 && (int) ( $rate['reset'] ?? 0 ) > time() ) {
-				throw new \RuntimeException( esc_html( __( 'The receipt upload limit has been reached. Please contact the store.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'The receipt upload limit has been reached. Please contact the store.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			if ( (int) ( $rate['reset'] ?? 0 ) <= time() ) {
 				$rate = array( 'count' => 0, 'reset' => time() + HOUR_IN_SECONDS );
@@ -104,12 +104,12 @@ final class Receipts {
 			$total = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COALESCE(SUM(bytes),0) FROM %i WHERE filename <> %s', self::table(), '' ) );
 			$quota = defined( 'C2C_RECEIPTS_QUOTA_MB' ) ? max( 10, (int) C2C_RECEIPTS_QUOTA_MB ) * MB_IN_BYTES : 1024 * MB_IN_BYTES;
 			if ( $count >= 10 || $total + 10 * MB_IN_BYTES > $quota ) {
-				throw new \RuntimeException( esc_html( __( 'The receipt upload limit has been reached. Please contact the store.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'The receipt upload limit has been reached. Please contact the store.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			$saved = Storage::save( $file );
 			if ( $total + $saved['bytes'] > $quota ) {
 				Storage::delete( $saved['filename'] );
-				throw new \RuntimeException( esc_html( __( 'The receipt upload limit has been reached. Please contact the store.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'The receipt upload limit has been reached. Please contact the store.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			$token = bin2hex( random_bytes( 32 ) );
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Plugin-owned receipt table has no core CRUD API; insert is serialized with the upload safety-budget lock.
@@ -124,7 +124,7 @@ final class Receipts {
 			) );
 			if ( ! $ok ) {
 				Storage::delete( $saved['filename'] );
-				throw new \RuntimeException( esc_html( __( 'The receipt could not be recorded. Please try again.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'The receipt could not be recorded. Please try again.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			return array( 'token' => $token, 'expires' => time() + DAY_IN_SECONDS, 'amount' => Support::amount( $amount, $currency ) );
 		} );
@@ -133,10 +133,10 @@ final class Receipts {
 	public static function validate( string $token ): object {
 		$row = self::by_token( $token );
 		if ( ! $row || ! hash_equals( $row->owner_hash, Support::owner() ) || ( 'staged' === $row->state && strtotime( $row->expires_at . ' UTC' ) < time() ) || ! in_array( $row->state, array( 'staged', 'submitted' ), true ) || '' === $row->filename ) {
-			throw new \RuntimeException( esc_html( __( 'Please upload a valid receipt. Uploads expire after 24 hours.', 'c2c-receipts' ) ) );
+			throw new \RuntimeException( esc_html( __( 'Please upload a valid receipt. Uploads expire after 24 hours.', 'card-to-card-receipts-for-woocommerce' ) ) );
 		}
 		if ( ! is_file( Storage::path( $row->filename ) ) ) {
-			throw new \RuntimeException( esc_html( __( 'The receipt is unavailable. Please contact the store.', 'c2c-receipts' ) ) );
+			throw new \RuntimeException( esc_html( __( 'The receipt is unavailable. Please contact the store.', 'card-to-card-receipts-for-woocommerce' ) ) );
 		}
 		return $row;
 	}
@@ -147,14 +147,14 @@ final class Receipts {
 			$order = wc_get_order( $order->get_id() );
 			$row = self::validate( $token );
 			if ( ( $replacement && (int) $row->scope_order_id !== $order->get_id() ) || ( ! $replacement && (int) $row->scope_order_id !== 0 ) ) {
-				throw new \RuntimeException( esc_html( __( 'This receipt was uploaded for a different checkout or order.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'This receipt was uploaded for a different checkout or order.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			if ( (int) $row->order_id !== 0 && (int) $row->order_id !== $order->get_id() ) {
 				/* translators: %d: existing WooCommerce order ID. */
-				throw new \RuntimeException( esc_html( sprintf( __( 'This receipt already belongs to order #%d. Do not transfer again; contact the store if needed.', 'c2c-receipts' ), $row->order_id ) ) );
+				throw new \RuntimeException( esc_html( sprintf( __( 'This receipt already belongs to order #%d. Do not transfer again; contact the store if needed.', 'card-to-card-receipts-for-woocommerce' ), $row->order_id ) ) );
 			}
 			if ( $order->is_paid() || $order->has_status( array( 'cancelled', 'refunded', 'completed', 'failed' ) ) || 'c2c_receipts' !== $order->get_payment_method() ) {
-				throw new \RuntimeException( esc_html( __( 'This order cannot accept a receipt.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'This order cannot accept a receipt.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			$previous = (int) $order->get_meta( '_c2c_receipt_id' );
 			if ( $previous === (int) $row->id && $order->has_status( 'on-hold' ) ) {
@@ -162,13 +162,13 @@ final class Receipts {
 			}
 			$old = $previous && $previous !== (int) $row->id ? self::get( $previous ) : null;
 			if ( $old && ( ! $replacement || 'rejected' !== $old->state ) ) {
-				throw new \RuntimeException( esc_html( __( 'A receipt is already awaiting review.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'A receipt is already awaiting review.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			if ( ! $row->order_id ) {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned receipt table has no core CRUD API; authorization, review, cleanup and erasure require fresh transactional state.
 				$claimed = $wpdb->query( $wpdb->prepare( 'UPDATE %i SET order_id = %d, state = %s WHERE id = %d AND order_id = 0 AND state = %s', self::table(), $order->get_id(), 'submitted', $row->id, 'staged' ) );
 				if ( 1 !== $claimed ) {
-					throw new \RuntimeException( esc_html( __( 'The receipt was claimed by another request. Please retry.', 'c2c-receipts' ) ) );
+					throw new \RuntimeException( esc_html( __( 'The receipt was claimed by another request. Please retry.', 'card-to-card-receipts-for-woocommerce' ) ) );
 				}
 			}
 			$order->update_meta_data( '_c2c_receipt_id', (int) $row->id );
@@ -178,14 +178,14 @@ final class Receipts {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned receipt table has no core CRUD API; authorization, review, cleanup and erasure require fresh transactional state.
 				$wpdb->update( self::table(), array( 'state' => 'superseded' ), array( 'id' => $old->id, 'state' => 'rejected' ) );
 			}
-			$order->update_status( 'on-hold', __( 'Bank transfer receipt received; payment requires manual verification.', 'c2c-receipts' ) );
+			$order->update_status( 'on-hold', __( 'Bank transfer receipt received; payment requires manual verification.', 'card-to-card-receipts-for-woocommerce' ) );
 			if ( ! self::matches( $row, $order ) ) {
-				$order->add_order_note( __( 'The order amount or currency changed after the receipt upload. Reconcile the difference before approval.', 'c2c-receipts' ) );
+				$order->add_order_note( __( 'The order amount or currency changed after the receipt upload. Reconcile the difference before approval.', 'card-to-card-receipts-for-woocommerce' ) );
 			}
-			$order->add_order_note( __( 'A payment receipt is available in the private receipt review panel.', 'c2c-receipts' ) );
+			$order->add_order_note( __( 'A payment receipt is available in the private receipt review panel.', 'card-to-card-receipts-for-woocommerce' ) );
 			// Additional submissions may not trigger a status-change email.
 			if ( $replacement ) {
-				self::notify( $order, __( 'A replacement payment receipt was submitted.', 'c2c-receipts' ) );
+				self::notify( $order, __( 'A replacement payment receipt was submitted.', 'card-to-card-receipts-for-woocommerce' ) );
 			}
 		} );
 	}
@@ -200,52 +200,52 @@ final class Receipts {
 			$order = wc_get_order( $order_id );
 			$row = self::get( $receipt_id );
 			if ( ! $order || ! $row || (int) $row->order_id !== $order_id || (int) $order->get_meta( '_c2c_receipt_id' ) !== $receipt_id || ! Support::reviewer( $order_id ) || 'c2c_receipts' !== $order->get_payment_method() || ! in_array( $decision, array( 'approved', 'rejected' ), true ) ) {
-				throw new \RuntimeException( esc_html( __( 'You cannot review this receipt.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'You cannot review this receipt.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			if ( ! $order->has_status( 'on-hold' ) || $order->is_paid() || ! in_array( $row->state, array( 'submitted', 'approving' ), true ) ) {
-				throw new \RuntimeException( esc_html( __( 'This receipt or order has already been updated. Reload the order.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'This receipt or order has already been updated. Reload the order.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			if ( 'approving' === $row->state && 'approved' !== $decision ) {
-				throw new \RuntimeException( esc_html( __( 'An approval was interrupted. Reconcile the bank deposit and retry approval.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'An approval was interrupted. Reconcile the bank deposit and retry approval.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			if ( 'approved' === $decision ) {
 				if ( ! self::matches( $row, $order ) ) {
-					throw new \RuntimeException( esc_html( __( 'The total or currency changed. Restore the submitted total or request a replacement receipt before approval.', 'c2c-receipts' ) ) );
+					throw new \RuntimeException( esc_html( __( 'The total or currency changed. Restore the submitted total or request a replacement receipt before approval.', 'card-to-card-receipts-for-woocommerce' ) ) );
 				}
 				if ( '' === $row->filename || ! is_file( Storage::path( $row->filename ) ) ) {
-					throw new \RuntimeException( esc_html( __( 'The receipt is unavailable. Please contact the store.', 'c2c-receipts' ) ) );
+					throw new \RuntimeException( esc_html( __( 'The receipt is unavailable. Please contact the store.', 'card-to-card-receipts-for-woocommerce' ) ) );
 				}
 				Storage::read( $row->filename );
 				// Persist intent first. A crash can be reconciled from order paid state.
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned receipt table has no core CRUD API; authorization, review, cleanup and erasure require fresh transactional state.
 				if ( false === $wpdb->update( self::table(), array( 'state' => 'approving', 'reviewer' => get_current_user_id(), 'reviewed_at' => gmdate( 'Y-m-d H:i:s' ) ), array( 'id' => $receipt_id ) ) ) {
-					throw new \RuntimeException( esc_html( __( 'The review could not be saved.', 'c2c-receipts' ) ) );
+					throw new \RuntimeException( esc_html( __( 'The review could not be saved.', 'card-to-card-receipts-for-woocommerce' ) ) );
 				}
 				$order->payment_complete();
 				$order = wc_get_order( $order_id );
 				if ( ! $order->is_paid() ) {
-					throw new \RuntimeException( esc_html( __( 'WooCommerce did not complete payment. Review the order before retrying.', 'c2c-receipts' ) ) );
+					throw new \RuntimeException( esc_html( __( 'WooCommerce did not complete payment. Review the order before retrying.', 'card-to-card-receipts-for-woocommerce' ) ) );
 				}
 			} elseif ( '' === trim( $reason ) ) {
-				throw new \RuntimeException( esc_html( __( 'A rejection reason is required.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'A rejection reason is required.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned receipt table has no core CRUD API; authorization, review, cleanup and erasure require fresh transactional state.
 			if ( false === $wpdb->update( self::table(), array( 'state' => $decision, 'reviewer' => get_current_user_id(), 'reason' => $reason, 'reviewed_at' => gmdate( 'Y-m-d H:i:s' ) ), array( 'id' => $receipt_id ) ) ) {
-				throw new \RuntimeException( esc_html( __( 'The review could not be saved.', 'c2c-receipts' ) ) );
+				throw new \RuntimeException( esc_html( __( 'The review could not be saved.', 'card-to-card-receipts-for-woocommerce' ) ) );
 			}
 			/* translators: 1: review decision, 2: reviewer user ID, 3: review reason. */
-			$order->add_order_note( sprintf( __( 'Receipt %1$s by user #%2$d. %3$s', 'c2c-receipts' ), $decision, get_current_user_id(), $reason ) );
+			$order->add_order_note( sprintf( __( 'Receipt %1$s by user #%2$d. %3$s', 'card-to-card-receipts-for-woocommerce' ), $decision, get_current_user_id(), $reason ) );
 			if ( 'rejected' === $decision ) {
 				/* translators: %s: reason the merchant rejected the receipt. */
-				$order->add_order_note( sprintf( __( 'Payment receipt rejected: %s. Please submit a replacement using the receipt link in your order email.', 'c2c-receipts' ), $reason ), true );
-				self::notify( $order, __( 'A payment receipt was rejected.', 'c2c-receipts' ) );
+				$order->add_order_note( sprintf( __( 'Payment receipt rejected: %s. Please submit a replacement using the receipt link in your order email.', 'card-to-card-receipts-for-woocommerce' ), $reason ), true );
+				self::notify( $order, __( 'A payment receipt was rejected.', 'card-to-card-receipts-for-woocommerce' ) );
 			}
 		} );
 	}
 
 	private static function notify( \WC_Order $order, string $message ): void {
 		/* translators: %s: merchant-facing order number. */
-		wp_mail( get_option( 'admin_email' ), sprintf( __( 'Bank transfer receipt: order #%s', 'c2c-receipts' ), $order->get_order_number() ), $message . "\n" . $order->get_edit_order_url() );
+		wp_mail( get_option( 'admin_email' ), sprintf( __( 'Bank transfer receipt: order #%s', 'card-to-card-receipts-for-woocommerce' ), $order->get_order_number() ), $message . "\n" . $order->get_edit_order_url() );
 	}
 
 	public static function cleanup(): void {
