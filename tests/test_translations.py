@@ -1,6 +1,10 @@
 import gettext
 import json
 from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,6 +36,28 @@ class TranslationTests(unittest.TestCase):
     def test_php_escaped_apostrophe_matches_runtime_gettext_key(self):
         text = "The browser tab temporarily stores an upload token and account/reference information to recover checkout. Upload protection uses WooCommerce session cookies and local hourly counters containing salted IP hashes. No analytics or receipt data is sent to the plugin author. Receipt notifications use the store's configured WordPress mail transport."
         self.assertNotEqual(self.translations.gettext(text), text)
+
+    def test_compiler_handles_long_unterminated_escape_sequence(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for folder in ('scripts', 'includes', 'languages'):
+                (root / folder).mkdir()
+            for name in ('compile_translations.py', 'audit_release.py'):
+                shutil.copyfile(ROOT / 'scripts' / name, root / 'scripts' / name)
+            shutil.copyfile(ROOT / 'package.json', root / 'package.json')
+            message = "Store's path \\x"
+            (root / 'languages/fa_IR.json').write_text(json.dumps({message: 'ترجمه آزمایشی'}))
+            domain = 'card-to-card-receipts-for-woocommerce'
+            (root / 'c2c-receipts.php').write_text(
+                "<?php\n__( '" + r'\&' * 100000 + "\n" +
+                r"esc_html__( 'Store\'s path \\x', '" + domain + "' );\n")
+            (root / 'uninstall.php').write_text('<?php\n')
+            result = subprocess.run([sys.executable, str(root / 'scripts/compile_translations.py')],
+                                    text=True, capture_output=True, timeout=5)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn('Compiled 1 Persian translations.', result.stdout)
+            with (root / f'languages/{domain}-fa_IR.mo').open('rb') as source:
+                self.assertEqual(gettext.GNUTranslations(source).gettext(message), 'ترجمه آزمایشی')
 
 
 if __name__ == '__main__':
