@@ -8,7 +8,7 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-SLUG = 'c2c-receipts'
+SLUG = 'card-to-card-receipts-for-woocommerce'
 
 
 def runtime_files(root=ROOT):
@@ -50,7 +50,7 @@ def audit(root=ROOT):
         errors.append('Use a numeric three-part plugin version.')
     if version != fields.get('Stable tag') or version != json.loads((root / 'package.json').read_text())['version']:
         errors.append('Plugin, package and stable tag versions must match.')
-    if f"define( 'C2C_RECEIPTS_VERSION', '{version}' );" not in source:
+    if f"define( 'C2CRECEIPTS_VERSION', '{version}' );" not in source:
         errors.append('Runtime version constant differs from the plugin header.')
     if header.get('Text Domain') != SLUG:
         errors.append('Text domain must match the intended directory slug.')

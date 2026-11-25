@@ -2,14 +2,14 @@
 /**
  * Plugin Name: Card to Card Receipts for WooCommerce
  * Description: Private bank-transfer receipt uploads and manual payment review, including Checkout Blocks.
- * Version: 0.1.4
+ * Version: 0.1.5
  * Author: Hesam MM
  * Author URI: https://profiles.wordpress.org/hesamst/
  * Requires at least: 7.0
  * Requires PHP: 8.3
  * Requires Plugins: woocommerce
  * WC requires at least: 11.0
- * Text Domain: c2c-receipts
+ * Text Domain: card-to-card-receipts-for-woocommerce
  * Domain Path: /languages
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -17,9 +17,9 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'C2C_RECEIPTS_VERSION', '0.1.4' );
-define( 'C2C_RECEIPTS_FILE', __FILE__ );
-define( 'C2C_RECEIPTS_DIR', __DIR__ );
+define( 'C2CRECEIPTS_VERSION', '0.1.5' );
+define( 'C2CRECEIPTS_FILE', __FILE__ );
+define( 'C2CRECEIPTS_DIR', __DIR__ );
 
 require_once __DIR__ . '/includes/class-support.php';
 require_once __DIR__ . '/includes/class-crypto.php';

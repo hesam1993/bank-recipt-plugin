@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('audit_release', ROOT / 'scripts/audit_release.py')
@@ -31,6 +32,24 @@ class ReleaseTests(unittest.TestCase):
 
     def test_metadata_and_license(self):
         self.assertEqual(audit.audit(), [])
+
+    def test_candidate_archive_matches_directory_slug_and_runtime_inventory(self):
+        result = subprocess.run([
+            sys.executable, str(ROOT / 'scripts/package.py'),
+        ], capture_output=True, text=True, check=True)
+        archive_path = Path(result.stdout.strip())
+        version = audit.metadata()[1]['Version']
+        slug = 'card-to-card-receipts-for-woocommerce'
+        self.assertEqual(archive_path.name, f'{slug}-{version}-review-candidate.zip')
+        with ZipFile(archive_path) as archive:
+            self.assertEqual(set(archive.namelist()), {
+                slug + '/' + str(path.relative_to(ROOT)) for path in audit.runtime_files()
+            })
+            main = archive.read(slug + '/c2c-receipts.php').decode()
+            self.assertIn(' * Text Domain: ' + slug + '\n', main)
+            self.assertIn(slug + '/languages/' + slug + '-fa_IR.mo', archive.namelist())
+            for path in audit.runtime_files():
+                self.assertEqual(archive.read(slug + '/' + str(path.relative_to(ROOT))), path.read_bytes())
 
     def test_complete_matrix_produces_measured_versions(self):
         with tempfile.TemporaryDirectory() as directory:

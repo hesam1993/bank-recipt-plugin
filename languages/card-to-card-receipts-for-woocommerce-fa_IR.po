@@ -1,7 +1,7 @@
 # Persian translation for Card to Card Receipts.
 
 msgid ""
-msgstr "Project-Id-Version: c2c-receipts 0.1.4\nLanguage: fa_IR\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n > 1);\n"
+msgstr "Project-Id-Version: card-to-card-receipts-for-woocommerce 0.1.5\nLanguage: fa_IR\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n > 1);\n"
 
 msgid "A payment receipt is available in the private receipt review panel."
 msgstr "رسید پرداخت در بخش خصوصی بررسی رسید سفارش در دسترس است."

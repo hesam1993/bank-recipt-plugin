@@ -5,7 +5,7 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 }
 require __DIR__ . '/assert_test_environment.php';
 $record = array(
-	'plugin_version' => C2C_RECEIPTS_VERSION,
+	'plugin_version' => C2CRECEIPTS_VERSION,
 	'source_sha256' => getenv( 'C2C_SOURCE_SHA256' ),
 	'php_version' => PHP_VERSION,
 	'wordpress_version' => get_bloginfo( 'version' ),

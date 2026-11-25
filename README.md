@@ -4,7 +4,7 @@ Accept manual card-to-card bank transfers with receipt uploads and payment revie
 
 Customers select a destination account and upload a receipt at checkout. Orders remain **On hold** until authorized staff verify the deposit and approve payment.
 
-**Version:** 0.1.4 · **Author:** [Hesam MM](https://profiles.wordpress.org/hesamst/) · **License:** GPL-2.0-or-later
+**Version:** 0.1.5 · **Author:** [Hesam MM](https://profiles.wordpress.org/hesamst/) · **License:** GPL-2.0-or-later
 
 ## Features
 
@@ -33,7 +33,9 @@ Customers select a destination account and upload a receipt at checkout. Orders 
 4. Activate **Card to Card Receipts for WooCommerce**.
 5. Open **WooCommerce → Settings → Payments → Card to card**.
 
-For manual installation, place the runtime files in `wp-content/plugins/c2c-receipts/`, with `c2c-receipts.php` directly inside that folder.
+For manual installation, place the runtime files in `wp-content/plugins/card-to-card-receipts-for-woocommerce/`, with `c2c-receipts.php` directly inside that folder.
+
+When upgrading a development installation in `wp-content/plugins/c2c-receipts/`, deactivate it and replace that plugin directory with the new package directory before activating version 0.1.5. Do not uninstall or keep both copies active. Keep the receipt uploads directory: existing settings, receipt records and encryption keys continue to use their original identifiers.
 
 ### Building an installation ZIP from source
 
@@ -43,7 +45,7 @@ From the repository root, with Python 3 installed:
 python3 scripts/package.py
 ```
 
-Upload the generated `dist/c2c-receipts-0.1.4-review-candidate.zip`. The archive contains one `c2c-receipts/` plugin folder and excludes development tooling and directory artwork.
+Upload the generated `dist/card-to-card-receipts-for-woocommerce-0.1.5-review-candidate.zip`. The archive contains one `card-to-card-receipts-for-woocommerce/` plugin folder and excludes development tooling and directory artwork.
 
 ## Configuration
 

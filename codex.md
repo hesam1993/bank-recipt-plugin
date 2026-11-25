@@ -2,7 +2,7 @@
 
 ## Project
 
-Card to Card Receipts for WooCommerce provides receipt uploads and manual bank-transfer review. The plugin slug and text domain are `c2c-receipts`, the PHP namespace is `C2CReceipts`, and the gateway ID is `c2c_receipts`. Runtime requirements are WordPress 7.0+, WooCommerce 11.0+, and PHP 8.3+ with GD and OpenSSL AES-256-GCM support.
+Card to Card Receipts for WooCommerce provides receipt uploads and manual bank-transfer review. The plugin slug and text domain are `card-to-card-receipts-for-woocommerce`, the PHP namespace is `C2CReceipts`, and the gateway ID is `c2c_receipts`. Runtime requirements are WordPress 7.0+, WooCommerce 11.0+, and PHP 8.3+ with GD and OpenSSL AES-256-GCM support.
 
 ## Repository map
 
@@ -30,7 +30,7 @@ Card to Card Receipts for WooCommerce provides receipt uploads and manual bank-t
 - Preserve single-use token claims, review locks, order amount/currency checks, and retry behavior.
 - Keep orders on hold until manual approval. Complete payment through WooCommerce; preserve its stock, fulfillment, and refund behavior.
 - Retain active-order receipts during cleanup. Honor privacy restrictions and the opt-in uninstall setting.
-- Use the `c2c-receipts` text domain and preserve Persian, RTL, and digit handling.
+- Use the `card-to-card-receipts-for-woocommerce` text domain and preserve Persian, RTL, and digit handling.
 - Keep plugin headers, runtime constants, `package.json`, and the `readme.txt` stable tag consistent.
 
 ## Checks
@@ -63,13 +63,15 @@ The GitHub Actions workflow runs shared JavaScript, translation, Python and codi
 
 CI installs `tests/ci-store.php` as a must-use plugin in its disposable store and sets the `C2C_TEST_HPOS` configuration constant. This fixture selects the order datastore for CLI and HTTP requests and disables synchronization. Keep it out of production installations and runtime ZIPs. Run `scripts/setup_test_store.php` through WP-CLI before integration tests: it initializes WooCommerce's HPOS schema and creates, reloads and deletes a smoke-test order. `scripts/assert_test_environment.php` checks measured PHP, HPOS mode, datastore and required HPOS tables before integration tests and evidence recording.
 
+`scripts/install_wp_cli.sh` installs the pinned official WP-CLI PHAR with download retries and SHA-256 verification, checks it with PHP, and exports its directory through `GITHUB_PATH`. Update its version and checksum together when upgrading WP-CLI. PHP setup must fail immediately if a required extension cannot be installed.
+
 ## Packaging and documentation
 
 ```sh
 python3 scripts/package.py
 ```
 
-- The review archive is `dist/c2c-receipts-<version>-review-candidate.zip`, containing one `c2c-receipts/` directory.
+- The review archive is `dist/card-to-card-receipts-for-woocommerce-<version>-review-candidate.zip`, containing one `card-to-card-receipts-for-woocommerce/` directory.
 - Use `--wordpress-org --validation-dir <directory>` only with matching successful runtime evidence for submission packaging.
 - Routine CI validates its four records with `--validation-scope routine` and produces a review candidate. Submission packaging requires release scope and the full matrix. Matrix generation and evidence validation share `scripts/ci-matrix.json`.
 - Exclude development dependencies, local configuration, tests, development notes, and directory artwork from installation ZIPs.

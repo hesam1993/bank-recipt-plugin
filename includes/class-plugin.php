@@ -22,7 +22,7 @@ final class Plugin {
 			add_action( 'admin_notices', static function () {
 				$screen = get_current_screen();
 				if ( current_user_can( 'activate_plugins' ) && $screen && in_array( $screen->id, array( 'plugins', 'woocommerce_page_wc-settings' ), true ) ) {
-					echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Card to Card Receipts requires WooCommerce 11.0 or later.', 'c2c-receipts' ) . '</p></div>';
+					echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Card to Card Receipts requires WooCommerce 11.0 or later.', 'card-to-card-receipts-for-woocommerce' ) . '</p></div>';
 				}
 			} );
 			return;
@@ -52,16 +52,16 @@ final class Plugin {
 	/** Directory language packs load automatically; load the bundled catalogue only when no pack exists. */
 	public static function translations(): void {
 		$locale = determine_locale();
-		if ( ! preg_match( '/^[A-Za-z0-9_@.-]+$/D', $locale ) || str_contains( $locale, '..' ) || is_textdomain_loaded( 'c2c-receipts' ) ) {
+		if ( ! preg_match( '/^[A-Za-z0-9_@.-]+$/D', $locale ) || str_contains( $locale, '..' ) || is_textdomain_loaded( 'card-to-card-receipts-for-woocommerce' ) ) {
 			return;
 		}
-		$pack = WP_LANG_DIR . '/plugins/c2c-receipts-' . $locale . '.mo';
-		if ( is_readable( $pack ) || is_readable( WP_LANG_DIR . '/plugins/c2c-receipts-' . $locale . '.l10n.php' ) ) {
+		$pack = WP_LANG_DIR . '/plugins/card-to-card-receipts-for-woocommerce-' . $locale . '.mo';
+		if ( is_readable( $pack ) || is_readable( WP_LANG_DIR . '/plugins/card-to-card-receipts-for-woocommerce-' . $locale . '.l10n.php' ) ) {
 			return;
 		}
-		$bundled = C2C_RECEIPTS_DIR . '/languages/c2c-receipts-' . $locale . '.mo';
+		$bundled = C2CRECEIPTS_DIR . '/languages/card-to-card-receipts-for-woocommerce-' . $locale . '.mo';
 		if ( is_readable( $bundled ) ) {
-			load_textdomain( 'c2c-receipts', $bundled, $locale );
+			load_textdomain( 'card-to-card-receipts-for-woocommerce', $bundled, $locale );
 		}
 	}
 
@@ -69,8 +69,8 @@ final class Plugin {
 		if ( wp_script_is( 'c2c-common', 'registered' ) ) {
 			return;
 		}
-		wp_register_script( 'c2c-common', plugins_url( 'assets/common.js', C2C_RECEIPTS_FILE ), array(), C2C_RECEIPTS_VERSION, true );
-		wp_register_script( 'c2c-classic', plugins_url( 'assets/classic.js', C2C_RECEIPTS_FILE ), array( 'jquery', 'c2c-common' ), C2C_RECEIPTS_VERSION, true );
+		wp_register_script( 'c2c-common', plugins_url( 'assets/common.js', C2CRECEIPTS_FILE ), array(), C2CRECEIPTS_VERSION, true );
+		wp_register_script( 'c2c-classic', plugins_url( 'assets/classic.js', C2CRECEIPTS_FILE ), array( 'jquery', 'c2c-common' ), C2CRECEIPTS_VERSION, true );
 		wp_localize_script( 'c2c-common', 'c2cReceiptsConfig', array(
 			'bootUrl' => \WC_AJAX::get_endpoint( 'c2c_boot' ),
 			'uploadUrl' => \WC_AJAX::get_endpoint( 'c2c_upload' ),
@@ -78,17 +78,17 @@ final class Plugin {
 			'statusUrl' => \WC_AJAX::get_endpoint( 'c2c_status' ),
 			'maxBytes' => min( wp_max_upload_size(), max( 1, min( 10, (int) ( Support::settings()['max_mb'] ?? 5 ) ) ) * MB_IN_BYTES ),
 			'labels' => array(
-				'account' => __( 'Destination account', 'c2c-receipts' ), 'copy' => __( 'Copy card number', 'c2c-receipts' ),
-				'copied' => __( 'Copied', 'c2c-receipts' ), 'reference' => __( 'Tracking number (optional)', 'c2c-receipts' ),
-				'receipt' => __( 'Receipt image', 'c2c-receipts' ), 'uploading' => __( 'Uploading receipt…', 'c2c-receipts' ),
-				'ready' => __( 'Receipt uploaded. Submit your order to send it for review.', 'c2c-receipts' ),
-				'required' => __( 'Upload a receipt before submitting your order.', 'c2c-receipts' ),
-				'error' => __( 'The request failed. Your transfer may already have succeeded; do not transfer again. Retry or contact the store.', 'c2c-receipts' ),
-				'fileError' => __( 'Choose a JPEG, PNG or WebP image within the displayed size limit.', 'c2c-receipts' ),
-				'submitted' => __( 'Receipt received; payment awaiting verification.', 'c2c-receipts' ),
-				'changed' => __( 'The order total changed. Do not transfer again; the store must reconcile the difference.', 'c2c-receipts' ),
+				'account' => __( 'Destination account', 'card-to-card-receipts-for-woocommerce' ), 'copy' => __( 'Copy card number', 'card-to-card-receipts-for-woocommerce' ),
+				'copied' => __( 'Copied', 'card-to-card-receipts-for-woocommerce' ), 'reference' => __( 'Tracking number (optional)', 'card-to-card-receipts-for-woocommerce' ),
+				'receipt' => __( 'Receipt image', 'card-to-card-receipts-for-woocommerce' ), 'uploading' => __( 'Uploading receipt…', 'card-to-card-receipts-for-woocommerce' ),
+				'ready' => __( 'Receipt uploaded. Submit your order to send it for review.', 'card-to-card-receipts-for-woocommerce' ),
+				'required' => __( 'Upload a receipt before submitting your order.', 'card-to-card-receipts-for-woocommerce' ),
+				'error' => __( 'The request failed. Your transfer may already have succeeded; do not transfer again. Retry or contact the store.', 'card-to-card-receipts-for-woocommerce' ),
+				'fileError' => __( 'Choose a JPEG, PNG or WebP image within the displayed size limit.', 'card-to-card-receipts-for-woocommerce' ),
+				'submitted' => __( 'Receipt received; payment awaiting verification.', 'card-to-card-receipts-for-woocommerce' ),
+				'changed' => __( 'The order total changed. Do not transfer again; the store must reconcile the difference.', 'card-to-card-receipts-for-woocommerce' ),
 				/* translators: %s: maximum allowed upload size in megabytes. */
-				'help' => __( 'JPEG, PNG or WebP. Maximum %s MB; 12 megapixels. Uploads expire after 24 hours.', 'c2c-receipts' ),
+				'help' => __( 'JPEG, PNG or WebP. Maximum %s MB; 12 megapixels. Uploads expire after 24 hours.', 'card-to-card-receipts-for-woocommerce' ),
 			),
 		) );
 	}
@@ -96,6 +96,6 @@ final class Plugin {
 	public static function enqueue_assets(): void {
 		self::register_assets();
 		wp_enqueue_script( 'c2c-classic' );
-		wp_enqueue_style( 'c2c-receipts', plugins_url( 'assets/checkout.css', C2C_RECEIPTS_FILE ), array(), C2C_RECEIPTS_VERSION );
+		wp_enqueue_style( 'c2c-receipts', plugins_url( 'assets/checkout.css', C2CRECEIPTS_FILE ), array(), C2CRECEIPTS_VERSION );
 	}
 }

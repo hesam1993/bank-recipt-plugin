@@ -29,11 +29,11 @@ final class Customer {
 			$id = absint( Support::get( 'c2c_order' ) );
 			$order = wc_get_order( $id );
 			if ( ! $order || ! self::allowed( $order, Support::access_input() ) ) {
-				wp_die( esc_html__( 'This order link is invalid or expired.', 'c2c-receipts' ), '', array( 'response' => 403 ) );
+				wp_die( esc_html__( 'This order link is invalid or expired.', 'card-to-card-receipts-for-woocommerce' ), '', array( 'response' => 403 ) );
 			}
 			Plugin::enqueue_assets();
 			get_header();
-			echo '<main class="c2c-manage"><h1>' . esc_html__( 'Bank transfer receipt', 'c2c-receipts' ) . '</h1>';
+			echo '<main class="c2c-manage"><h1>' . esc_html__( 'Bank transfer receipt', 'card-to-card-receipts-for-woocommerce' ) . '</h1>';
 			self::order_panel( $id );
 			echo '</main>';
 			get_footer();
@@ -72,17 +72,17 @@ final class Customer {
 		} elseif ( WC()->cart ) {
 			echo '<p>' . esc_html( Support::amount( WC()->cart->get_total( 'edit' ), get_woocommerce_currency() ) ) . '</p>';
 		}
-		echo '<label>' . esc_html__( 'Destination account', 'c2c-receipts' ) . '<select name="c2c_account" class="c2c-account">';
+		echo '<label>' . esc_html__( 'Destination account', 'card-to-card-receipts-for-woocommerce' ) . '<select name="c2c_account" class="c2c-account">';
 		foreach ( $accounts as $account ) {
 			echo '<option value="' . esc_attr( $account['id'] ?? '' ) . '" data-account="' . esc_attr( wp_json_encode( $account ) ) . '">' . esc_html( Support::account_label( $account ) ) . '</option>';
 		}
 		echo '</select></label><div class="c2c-details"></div>';
-		echo '<label>' . esc_html__( 'Tracking number (optional)', 'c2c-receipts' ) . '<input type="text" class="c2c-reference" maxlength="120" autocomplete="off"></label>';
-		echo '<label>' . esc_html__( 'Receipt image', 'c2c-receipts' ) . '<input type="file" class="c2c-file" accept="image/jpeg,image/png,image/webp"></label>';
-		echo '<p class="c2c-help"></p><progress class="c2c-progress" max="100" value="0" hidden></progress><img class="c2c-preview" alt="' . esc_attr__( 'Receipt preview', 'c2c-receipts' ) . '" hidden>';
+		echo '<label>' . esc_html__( 'Tracking number (optional)', 'card-to-card-receipts-for-woocommerce' ) . '<input type="text" class="c2c-reference" maxlength="120" autocomplete="off"></label>';
+		echo '<label>' . esc_html__( 'Receipt image', 'card-to-card-receipts-for-woocommerce' ) . '<input type="file" class="c2c-file" accept="image/jpeg,image/png,image/webp"></label>';
+		echo '<p class="c2c-help"></p><progress class="c2c-progress" max="100" value="0" hidden></progress><img class="c2c-preview" alt="' . esc_attr__( 'Receipt preview', 'card-to-card-receipts-for-woocommerce' ) . '" hidden>';
 		echo '<p class="c2c-status" role="status" aria-live="polite"></p><input type="hidden" name="c2c_token" class="c2c-token">';
 		if ( $order ) {
-			echo '<button type="button" class="button c2c-replace" disabled>' . esc_html__( 'Submit replacement receipt', 'c2c-receipts' ) . '</button>';
+			echo '<button type="button" class="button c2c-replace" disabled>' . esc_html__( 'Submit replacement receipt', 'card-to-card-receipts-for-woocommerce' ) . '</button>';
 		}
 		echo '</div>';
 	}
@@ -97,13 +97,13 @@ final class Customer {
 			return;
 		}
 		$access = self::access( $order );
-		echo '<section class="c2c-order" data-c2c-clear="1"><h2>' . esc_html__( 'Bank transfer receipt', 'c2c-receipts' ) . '</h2>';
-		echo '<p>' . esc_html( $order->is_paid() ? __( 'Payment verified.', 'c2c-receipts' ) : ( 'rejected' === $row->state ? __( 'Receipt rejected. Please submit a replacement.', 'c2c-receipts' ) : __( 'Receipt received; payment awaiting verification.', 'c2c-receipts' ) ) ) . '</p>';
+		echo '<section class="c2c-order" data-c2c-clear="1"><h2>' . esc_html__( 'Bank transfer receipt', 'card-to-card-receipts-for-woocommerce' ) . '</h2>';
+		echo '<p>' . esc_html( $order->is_paid() ? __( 'Payment verified.', 'card-to-card-receipts-for-woocommerce' ) : ( 'rejected' === $row->state ? __( 'Receipt rejected. Please submit a replacement.', 'card-to-card-receipts-for-woocommerce' ) : __( 'Receipt received; payment awaiting verification.', 'card-to-card-receipts-for-woocommerce' ) ) ) . '</p>';
 		if ( 'rejected' === $row->state ) {
 			echo '<p>' . esc_html( $row->reason ) . '</p>';
 		}
 		if ( '' !== $row->filename ) {
-			echo '<p><a target="_blank" rel="noopener noreferrer" href="' . esc_url( Http::file_url( $row, $access ) ) . '">' . esc_html__( 'View receipt', 'c2c-receipts' ) . '</a></p>';
+			echo '<p><a target="_blank" rel="noopener noreferrer" href="' . esc_url( Http::file_url( $row, $access ) ) . '">' . esc_html__( 'View receipt', 'card-to-card-receipts-for-woocommerce' ) . '</a></p>';
 		}
 		if ( 'rejected' === $row->state && $order->has_status( 'on-hold' ) ) {
 			self::form( $order, $access );
@@ -116,7 +116,7 @@ final class Customer {
 			return;
 		}
 		$url = add_query_arg( self::access( $order ), home_url( '/' ) );
-		$text = __( 'View your receipt or submit a replacement. This private link expires in seven days; do not share it.', 'c2c-receipts' );
+		$text = __( 'View your receipt or submit a replacement. This private link expires in seven days; do not share it.', 'card-to-card-receipts-for-woocommerce' );
 		if ( $plain_text ) {
 			// A text/plain message must preserve URL ampersands rather than emit HTML entities.
 			echo "\n" . wp_strip_all_tags( $text ) . "\n" . esc_url_raw( $url ) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Plain-text email; static translated text and a sanitized generated URL.
