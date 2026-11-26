@@ -78,4 +78,7 @@ python3 scripts/package.py
 - Keep user instructions in `README.md`, directory metadata in `readme.txt`, and runtime source details in `source.txt`.
 - Keep this file focused on current project structure, conventions, and commands.
 - Record compatibility claims only from verified environments.
-- Make changes on `develop`. Commit, rewrite history, merge, or push only when requested.
+- Create a task-specific feature branch from `develop` before making changes. Do not work directly on `develop` or `main`.
+- Target feature-branch pull requests at `develop`. Promote `develop` to `main` separately when requested.
+- Use a merge commit when promoting `develop` to `main` so the long-lived branches retain shared history.
+- Commit, rewrite history, merge, or push only when requested.

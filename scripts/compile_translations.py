@@ -12,7 +12,8 @@ version = json.loads((root / 'package.json').read_text())['version']
 sources = [root / 'c2c-receipts.php', root / 'uninstall.php', *sorted((root / 'includes').glob('*.php'))]
 messages = set()
 for path in sources:
-    raw_messages = re.findall(r"(?:__|esc_html__|esc_attr__)\(\s*'((?:\\.|[^'])*)',\s*'" + re.escape(SLUG) + "'", path.read_text())
+    # Escaped pairs and ordinary characters must not both consume a backslash.
+    raw_messages = re.findall(r"(?:__|esc_html__|esc_attr__)\(\s*'((?:\\.|[^'\\])*)',\s*'" + re.escape(SLUG) + "'", path.read_text())
     messages.update(re.sub(r"\\([\\'])", lambda match: match.group(1), text) for text in raw_messages)
 missing = messages - catalogue.keys()
 if missing:
